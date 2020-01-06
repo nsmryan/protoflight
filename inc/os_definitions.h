@@ -9,6 +9,23 @@
 
 
 /**
+ * This definition is the number of nanoseconds per system
+ * clock tick
+ */
+#define OS_CONFIG_CLOCK_TICK_NANOSECONDS (OS_NANOSECONDS_PER_SECOND / CLOCKS_PER_SEC)
+
+/**
+ * This definition is the maximum length of an OS resource name, such as
+ * a queue or thread.
+ */
+#define OS_CONFIG_MAX_NAME_LENGTH (256)
+
+/**
+ * This definition is the number of nanoseconds per second.
+ */
+#define OS_NANOSECONDS_PER_SECOND 1000000000
+
+/**
  * This definition is used for timeout parameters (OS_Timeout) to indicate
  * that an operation may block indefinitely.
  */
@@ -34,7 +51,12 @@ typedef OS_Timeout int;
  */
 typedef enum
 {
-	OS_RESULT_INVALID = 0, /*<< Invalid result */
-	OS_RESULT_OKAY    = 1, /*<< Success */
+	OS_RESULT_INVALID            = 0, /*<< Invalid result */
+	OS_RESULT_OKAY               = 1, /*<< Success */
+	OS_RESULT_NULL_POINTER       = 2, /*<< Null pointer detected */
+	OS_RESULT_TIMEOUT            = 3, /*<< Timeout */
+	OS_RESULT_MSG_SIZE_ERROR     = 4, /*<< Message provided was too large */
+	OS_RESULT_MAX_TIMERS_REACHED = 5, /*<< Maximum number of timers reached */
 	OS_RESULT_NUM_RESULTS /*<< Number of result codes */
 } OS_RESULT_ENUM;
+

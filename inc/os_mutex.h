@@ -8,6 +8,8 @@
  * taken and given recursively and is intended for mutually
  * exclusive access to a resource.
  */
+#include "pthreads.h"
+
 #include "os_definitions.h"
 
 
@@ -15,7 +17,7 @@
  * This definition is for the internal representation of a mutex
  * within the OS abstraction.
  */
-typedef OS_Mutex int;
+typedef OS_Mutex pthread_mutex_t;
 
 /**
  * @brief os_mutex_create
@@ -35,7 +37,7 @@ OS_RESULT_ENUM os_mutex_create(OS_Mutex *mutex);
  * @return An OS result indicating either success (OS_RESULT_OKAY)
  * or indicating the cause of the error.
  */
-OS_RESULT_ENUM os_mutex_give(OS_Mutex mutex);
+OS_RESULT_ENUM os_mutex_give(OS_Mutex *mutex);
 
 /**
  * @brief os_mutex_take
@@ -52,5 +54,5 @@ OS_RESULT_ENUM os_mutex_give(OS_Mutex mutex);
  * @return An OS result type either indicating success (OS_RESULT_OKAY)
  * or an error code indicating the cause of the error.
  */
-OS_RESULT_ENUM os_mutex_take(OS_Mutex mutex, FSW_Timeout timeout);
+OS_RESULT_ENUM os_mutex_take(OS_Mutex *mutex, FSW_Timeout timeout);
 
