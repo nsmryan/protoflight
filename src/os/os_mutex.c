@@ -10,7 +10,7 @@
 
 #include "errno.h"
 
-#include "pthreads.h"
+#include "pthread.h"
 
 #include "os_definitions.h"
 #include "os_mutex.h"

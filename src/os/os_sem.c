@@ -6,6 +6,8 @@
  * This file contains the implementations of semaphore functions for the OS
  * abstraction used by the FSW.
  */
+#include "string.h"
+
 #include "pthread.h"
 
 #include "os_definitions.h"
@@ -85,7 +87,7 @@ OS_RESULT_ENUM os_sem_give(OS_Sem *sem)
 
   if (result == OS_RESULT_OKAY)
   {
-    pthread_cond_signal(&sem->condition);
+    pthread_cond_signal(&sem->cond);
   }
 
   return result;
@@ -108,7 +110,13 @@ OS_RESULT_ENUM os_sem_take(OS_Sem *sem, OS_Timeout timeout)
     timeout_spec.tv_sec = nanoseconds % OS_NANOSECONDS_PER_SECOND;
     timeout_spec.tv_nsec = nanoseconds / OS_NANOSECONDS_PER_SECOND;;
 
-    pthread_cond_wait(&sem->condition, &sem->mutex, timeout_spec);
+    int ret_code =
+      pthread_cond_timedwait(&sem->cond, &sem->mutex, &timeout_spec);
+
+    if (ret_code < 0)
+    {
+      result = OS_RESULT_ERROR;
+    }
   }
 
   return result;

@@ -47,11 +47,11 @@ MB_RESULT_ENUM mb_send(MSG_Header *message, OS_Timeout timeout)
     MSG_PACKETTYPE_ENUM packet_type =
       (MSG_PACKETTYPE_ENUM)message->packet_type;
 
-    for (uint16_t pipeIndex = 0;
-         pipeIndex < gvMB_state.pipes[packet_type].num_pipes;
-         pipeIndex++)
+    for (uint16_t pipe_index = 0;
+         pipe_index < gvMB_state.packets[packet_type].num_pipes;
+         pipe_index++)
     {
-      MB_Pipe pipe = gvMB_state.pipes[packet_type].pipes[pipeIndex];
+      MB_Pipe pipe = gvMB_state.packets[packet_type].pipes[pipe_index];
       OS_RESULT_ENUM os_result =
         os_queue_send(pipe,
                       message,

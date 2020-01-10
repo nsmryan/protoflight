@@ -14,13 +14,17 @@
 #include "os_definitions.h"
 
 
+#define OS_MAX_TIMERS 32
+
+
+typedef void (OS_TIMER_FUNC)(void);
+
 typedef struct OS_Timer
 {
   timer_t timer;
   int signal;
+  OS_TIMER_FUNC *callback;
 } OS_Timer;
-
-typedef void (OS_TIMER_FUNC)(void);
 
 
 /**

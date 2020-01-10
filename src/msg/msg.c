@@ -26,7 +26,7 @@ MSG_RESULT_ENUM msg_telemetry_message(MSG_Header *header,
   {
     header->packet_type = packet_id;
     header->packet_id = MSG_PACKETTYPE_TELEMETRY;
-    header->length = length;
+    header->length = size_bytes;
   }
 
   return result;
@@ -46,7 +46,7 @@ MSG_RESULT_ENUM msg_command_message(MSG_Header *header,
   {
     header->packet_type = packet_id;
     header->packet_id = MSG_PACKETTYPE_COMMAND;
-    header->length = length;
+    header->length = size_bytes;
   }
 
   return result;

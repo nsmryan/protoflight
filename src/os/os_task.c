@@ -6,6 +6,11 @@
  * This file contains the implementation for the OS task abstraction used
  * by the fsw.
  */
+#include "string.h"
+
+#include "unistd.h"
+#include "sys/types.h"
+
 #include "pthread.h"
 
 #include "os_definitions.h"
@@ -20,6 +25,10 @@ OS_RESULT_ENUM os_task_spawn(OS_Task *task,
 {
   OS_RESULT_ENUM result = OS_RESULT_OKAY;
 
+  // return code from pthread functions
+  int ret_code = 0;
+
+  pthread_attr_t attr;
 
   // check input parameters for NULL pointers
   if ((task == NULL) || (function == NULL))
@@ -30,9 +39,7 @@ OS_RESULT_ENUM os_task_spawn(OS_Task *task,
   // initialize the pthread attributes
   if (result == OS_RESULT_OKAY)
   {
-    int ret_code = 0;
-
-    pthread_attr_t attr;
+    ret_code = 0;
 
     // the return value of memset is not checked as it returns a pointer to
     // the set memory area, which was checked for NULL above.
@@ -94,7 +101,7 @@ OS_RESULT_ENUM os_task_spawn(OS_Task *task,
   // create the thread itself
   if (result == OS_RESULT_OKAY)
   {
-    ret_code = pthread_create(task, &attr, function, argument);
+    ret_code = pthread_create(task, &attr, function, (void*)argument);
 
     if (ret_code < 0)
     {

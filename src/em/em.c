@@ -78,6 +78,6 @@ void em_get_status(EM_Status *status)
 {
   if (status != NULL)
   {
-    *status = gvEM_status;
+    *status = gvEM_state.status;
   }
 }

@@ -34,14 +34,14 @@ FSW_RESULT_ENUM em_initialize(void);
  *
  * This function sends an event message.
  */
-EM_RESULT_ENUM em_event(FSW_MODULEID_ENUM module_id,
-                        uint16_t event_id,
-                        uint32_t line_number,
-                        uint32_t param0,
-                        uint32_t param1,
-                        uint32_t param2,
-                        uint32_t param3,
-                        uint32_t param4);
+void em_event(FSW_MODULEID_ENUM module_id,
+              uint16_t event_id,
+              uint32_t line_number,
+              uint32_t param0,
+              uint32_t param1,
+              uint32_t param2,
+              uint32_t param3,
+              uint32_t param4);
 
 /**
  * @brief em_get_status

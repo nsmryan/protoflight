@@ -11,7 +11,7 @@
 #ifndef __OS_MUTEX_H__
 #define __OS_MUTEX_H__
 
-#include "pthreads.h"
+#include "pthread.h"
 
 #include "os_definitions.h"
 
@@ -57,6 +57,6 @@ OS_RESULT_ENUM os_mutex_give(OS_Mutex *mutex);
  * @return An OS result type either indicating success (OS_RESULT_OKAY)
  * or an error code indicating the cause of the error.
  */
-OS_RESULT_ENUM os_mutex_take(OS_Mutex *mutex, FSW_Timeout timeout);
+OS_RESULT_ENUM os_mutex_take(OS_Mutex *mutex, OS_Timeout timeout);
 
 #endif // ndef __OS_MUTEX_H__ */

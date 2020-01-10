@@ -6,13 +6,16 @@
  * This file contains the implementation of the OS abstraction for message
  * queues.
  */
+#include "stdint.h"
+
 #include "fcntl.h"
+#include "errno.h"
 
 #include "sys/stat.h"
 
 #include "mqueue.h"
 
-#include "pthreads.h"
+#include "pthread.h"
 
 #include "os_definitions.h"
 #include "os_queue.h"
