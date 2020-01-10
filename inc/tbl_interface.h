@@ -12,7 +12,11 @@
  * update the most recent version of a table from RAM or persistent
  * memory or from RAM.
  */
+#ifndef __TBL_INTERFACE_H__
+#define __TBL_INTERFACE_H__
+
 #include "tbl_definitions.h"
+
 
 /**
  * @brief tbl_update_table
@@ -33,9 +37,9 @@
  * 
  */
 TBL_RESULT_ENUM tbl_update_table(TBL_TABLE_ID_ENUM table_id,
-				 TBL_LOCATION_ENUM location,
-		                 uint8_t *table_buffer,
-			         uint32_t table_size);
+                                 TBL_LOCATION_ENUM location,
+                                 uint8_t *table_buffer,
+                                 uint32_t table_size);
 
 /**
  * @brief tbl_retrieve_table
@@ -56,9 +60,9 @@ TBL_RESULT_ENUM tbl_update_table(TBL_TABLE_ID_ENUM table_id,
  * is returned then table_buffer is not modified.
  */
 TBL_RESULT_ENUM tbl_retrieve_table(TBL_TABLE_ID_ENUM table_id,
-				   TBL_LOCATION_ENUM location,
-		                   uint8_t *table_buffer,
-			           uint32_t table_size);
+                                   TBL_LOCATION_ENUM location,
+                                   uint8_t *table_buffer,
+                                   uint32_t table_size);
 
 /**
  * @brief tbl_get_status
@@ -68,3 +72,5 @@ TBL_RESULT_ENUM tbl_retrieve_table(TBL_TABLE_ID_ENUM table_id,
  * will do nothing.
  */
 void tbl_get_status(TBL_Status *status);
+
+#endif // ndef __TBL_INTERFACE_H__ */

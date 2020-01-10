@@ -7,9 +7,15 @@
  *
  * The message bus module handles passing packets between tasks or modules.
  */
+#ifndef __MB_INTERFACE_H__
+#define __MB_INTERFACE_H__
+
 #include "stdint.h"
 
+#include "os_queue.h"
+
 #include "fsw_definitions.h"
+#include "msg_definitions.h"
 
 #include "mb_definitions.h"
 
@@ -37,7 +43,7 @@ FSW_RESULT_ENUM mb_initialize(void);
  * @return Either success (MB_RESULT_OKAY), or an error code indicating the
  *         source of the error.
  */
-MB_RESULT_ENUM mb_send(MSG_Header *message, FSW_Timeout timeout);
+MB_RESULT_ENUM mb_send(MSG_Header *message, OS_Timeout timeout);
 
 /**
  * @brief This function receives a message from a particular pipe. This will
@@ -53,9 +59,9 @@ MB_RESULT_ENUM mb_send(MSG_Header *message, FSW_Timeout timeout);
  * @return Either success (MB_RESULT_OKAY), or an error code indicating the
  *         source of the error.
  */
-MB_RESULT_ENUM mb_receive(MB_Pipe pipeId,
+MB_RESULT_ENUM mb_receive(MB_Pipe *pipeId,
                           MSG_Header *message,
-                          FSW_Timeout timeout);
+                          OS_Timeout timeout);
 
 /**
  * @brief This function creates a new message pipe, returning a handle to the pipe
@@ -84,7 +90,7 @@ MB_RESULT_ENUM mb_create_pipe(MB_Pipe *pipe,
  * @return Either success (MB_RESULT_OKAY), or an error code indicating the
  *         source of the error.
  */
-MB_RESULT_ENUM mb_register_packet(MB_Pipe pipe, MSG_PACKETTYPE_ENUM packet_type);
+MB_RESULT_ENUM mb_register_packet(MB_Pipe *pipe, MSG_PACKETTYPE_ENUM packet_type);
 
 /**
  * @brief mb_get_status
@@ -94,3 +100,5 @@ MB_RESULT_ENUM mb_register_packet(MB_Pipe pipe, MSG_PACKETTYPE_ENUM packet_type)
  * will do nothing.
  */
 void mb_get_status(MB_Status *status);
+
+#endif // ndef __MB_INTERFACE_H__ */

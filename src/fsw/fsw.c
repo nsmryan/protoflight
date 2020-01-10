@@ -3,7 +3,7 @@
  *
  * @author Noah Ryan
  *
- * This file contains function implemenetations for
+ * This file contains function implementations for
  * system-level functions.
  */
 

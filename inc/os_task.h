@@ -6,6 +6,11 @@
  * This file contains the definitions for the OS task abstraction used
  * by the fsw.
  */
+#ifndef __OS_TASK_H__
+#define __OS_TASK_H__
+
+#include "pthread.h"
+
 #include "os_definitions.h"
 
 
@@ -14,7 +19,13 @@
  * tasks. This type is used as a pointer, allowing it to either
  * point to task data, or to a handle passed to OS functions.
  */
-typedef OS_Task pthread_t;
+typedef pthread_t OS_Task;
+
+/**
+ * The OS_TASK_FUNC type is for task function pointers registered
+ * with the Task Manager module.
+ */
+typedef void (OS_TASK_FUNC)(int);
 
 /**
  * This enum provides possible task status' returned by
@@ -39,7 +50,7 @@ typedef enum
  * or an error code indicating the cause of the error.
  */
 OS_RESULT_ENUM os_task_spawn(OS_Task *task,
-                             OS_TASK_FUNC function,
+                             OS_TASK_FUNC *function,
                              int argument,
                              int priority,
                              int stack_size);
@@ -53,4 +64,6 @@ OS_RESULT_ENUM os_task_spawn(OS_Task *task,
  * @return A value of type OS_TASK_STATUS_ENUM, indicating the
  * current status of the task.
  */
-OS_TASK_STATUS_ENUM os_task_status(OS_Task task);
+OS_TASK_STATUS_ENUM os_task_status(OS_Task *task);
+
+#endif // ndef __OS_TASK_H__ */

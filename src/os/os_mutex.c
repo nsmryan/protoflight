@@ -9,6 +9,7 @@
 #include "stdbool.h"
 
 #include "errno.h"
+
 #include "pthreads.h"
 
 #include "os_definitions.h"
@@ -69,7 +70,7 @@ OS_RESULT_ENUM os_mutex_create(OS_Mutex *mutex)
   return result;
 }
 
-OS_RESULT_ENUM os_mutex_give(OS_Mutex *mutex, FSW_Timeout timeout)
+OS_RESULT_ENUM os_mutex_give(OS_Mutex *mutex, OS_Timeout timeout)
 {
   OS_RESULT_ENUM result = OS_RESULT_OKAY;
 
@@ -103,7 +104,7 @@ OS_RESULT_ENUM os_mutex_give(OS_Mutex *mutex, FSW_Timeout timeout)
   return result;
 }
 
-OS_RESULT_ENUM os_mutex_take(OS_Mutex *mutex, FSW_Timeout timeout)
+OS_RESULT_ENUM os_mutex_take(OS_Mutex *mutex, OS_Timeout timeout)
 {
   OS_RESULT_ENUM result = OS_RESULT_OKAY;
 

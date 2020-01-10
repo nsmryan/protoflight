@@ -9,6 +9,8 @@
  * This file contains general definitions used throughout
  * the flight software, but do not below to a particular module.
  */
+#ifndef __FSW_DEFINITIONS_H__
+#define __FSW_DEFINITIONS_H__
 
 /* Generic Event Ids */
 /**
@@ -32,6 +34,10 @@
  */
 #define FSW_EVENT_INIT_ERROR (FSW_EVENT_BASE_ID + 2)
 
+/**
+ * Task ID for the telemetry module task
+ */
+#define FSW_TASK_ID_TELEMETRY 10
 
 /**
  * The module id enum enumerates all modules within the FSW system.
@@ -59,6 +65,8 @@ typedef enum
 	FSW_RESULT_OKAY                    = 1, /*<< Success */
 	FSW_RESULT_TASK_REGISTRATION_ERROR = 2, /*<< Error when registering a task */
 	FSW_RESULT_OS_TIMER_CREATE_ERROR   = 3, /*<< Error when creating a timer */
+	FSW_RESULT_OS_SEM_CREATE_ERROR     = 4, /*<< Error when creating a semaphore */
 	FSW_RESULT_NUM_RESULTS  /*<< Number of FSW result values */
 } FSW_RESULT_ENUM;
 
+#endif // ndef __FSW_DEFINITIONS_H__ */

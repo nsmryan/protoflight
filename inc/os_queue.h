@@ -6,6 +6,9 @@
  * This file contains the interface for message queues for the OS abstraction
  * used by the fsw.
  */
+#ifndef __OS_QUEUE_H__
+#define __OS_QUEUE_H__
+
 #include "mqueue.h"
 
 #include "os_definitions.h"
@@ -17,7 +20,7 @@
  * in this abstraction layer. This allows it to either point to
  * queue data, or to a handle passed to OS queue functions.
  */
-typedef OS_Queue mqd_t;
+typedef mqd_t OS_Queue;
 
 
 /**
@@ -72,6 +75,8 @@ OS_RESULT_ENUM os_queue_send(OS_Queue *queue,
  * or an error code indicating the cause of the error.
  */
 OS_RESULT_ENUM os_queue_receive(OS_Queue *queue,
-                                uint8_t *buffer
+                                uint8_t *buffer,
                                 uint32_t *buffer_size_bytes,
                                 OS_Timeout timeout);
+
+#endif // ndef __OS_QUEUE_H__ */

@@ -5,6 +5,10 @@
  *
  * This file contains definitions for the Table module.
  */
+#ifndef __TBL_DEFINITIONS_H__
+#define __TBL_DEFINITIONS_H__
+
+#include "stdint.h"
 
 
 /**
@@ -74,7 +78,6 @@ typedef struct
 	uint8_t *table_ptr;  /*<< A pointer to the table data in RAM */
 } TBL_TableDefinition;
 
-{
 /**
  * This struct is the state for the Table module.
  */
@@ -84,3 +87,4 @@ typedef struct
 	TBL_Status status;
 } TBL_State;
 
+#endif // ndef __TBL_DEFINITIONS_H__ */

@@ -45,10 +45,10 @@ OS_RESULT_ENUM os_timer_create(OS_Timer *timer)
     events.sigev_notify = SIGEV_SIGNAL;
     events.sigev_signo = gvOS_currentSignal;
 
-    ret_code = timer_create(CLOCK_REALTIME, &events, &timer.timer);
+    ret_code = timer_create(CLOCK_REALTIME, &events, &timer->timer);
     if (ret_code == 0)
     {
-      timer.signal = gvOS_currentSignal;
+      timer->signal = gvOS_currentSignal;
     }
     else
     {
@@ -63,7 +63,7 @@ OS_RESULT_ENUM os_timer_create(OS_Timer *timer)
     memset(&signal_action, 0, sizeof(signal_action));
 
     sigemptyset(&signal_action);
-    signal_action.sa_handlder = callback;
+    signal_action.sa_handler = callback;
     signal_action.sa_flags = SA_RESTART;
 
     ret_code = sigaction(gvOS_currentSignal, &signal_action, NULL);
@@ -82,7 +82,7 @@ OS_RESULT_ENUM os_timer_create(OS_Timer *timer)
   return result;
 }
 
-OS_RESULT_ENUM os_timer_start(OS_timer *timer, OS_Timer function, OS_Timeout timeout)
+OS_RESULT_ENUM os_timer_start(OS_Timer *timer, OS_Timer function, OS_Timeout timeout)
 {
   OS_RESULT_ENUM result = OS_RESULT_OKAY;
 

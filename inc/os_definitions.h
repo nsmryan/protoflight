@@ -6,7 +6,10 @@
  * This file contains definitions that are common to OS abstractions
  * used by the fsw.
  */
+#ifndef __OS_DEFINITIONS_H__
+#define __OS_DEFINITIONS_H__
 
+#include "time.h" // included because of CLOCKS_PER_SEC
 
 /**
  * This definition is the number of nanoseconds per system
@@ -42,7 +45,7 @@
  * A OS timeout is used for indicating whether to block
  * on a semaphore/queue/etc, and if so for how long
  */
-typedef OS_Timeout int;
+typedef int OS_Timeout;
 
 /**
  * This definition is the result type for OS abstraction types.
@@ -60,3 +63,4 @@ typedef enum
 	OS_RESULT_NUM_RESULTS /*<< Number of result codes */
 } OS_RESULT_ENUM;
 
+#endif // ndef __OS_DEFINITIONS_H__ */

@@ -12,6 +12,8 @@
 
 #include "mqueue.h"
 
+#include "pthreads.h"
+
 #include "os_definitions.h"
 #include "os_queue.h"
 
@@ -124,7 +126,7 @@ OS_RESULT_ENUM os_queue_send(OS_Queue *queue,
 }
 
 OS_RESULT_ENUM os_queue_receive(OS_Queue *queue,
-                                uint8_t *buffer
+                                uint8_t *buffer,
                                 uint32_t *buffer_size_bytes,
                                 OS_Timeout timeout)
 {

@@ -5,6 +5,11 @@
  *
  * This file contains interface definitions for the Message module
  */
+#ifndef __MSG_INTERFACE_H__
+#define __MSG_INTERFACE_H__
+
+#include "msg_definitions.h"
+
 
 /**
  * @brief msg_telemetry_message
@@ -40,3 +45,4 @@ MSG_RESULT_ENUM msg_telemetry_message(MSG_Header *header, MSG_PACKETID_ENUM pack
  */
 MSG_RESULT_ENUM msg_command_message(MSG_Header *header, MSG_PACKETID_ENUM packet_id, uint16_t size_bytes); 
 
+#endif // ndef __MSG_INTERFACE_H__ */

@@ -8,6 +8,9 @@
  * taken and given recursively and is intended for mutually
  * exclusive access to a resource.
  */
+#ifndef __OS_MUTEX_H__
+#define __OS_MUTEX_H__
+
 #include "pthreads.h"
 
 #include "os_definitions.h"
@@ -56,3 +59,4 @@ OS_RESULT_ENUM os_mutex_give(OS_Mutex *mutex);
  */
 OS_RESULT_ENUM os_mutex_take(OS_Mutex *mutex, FSW_Timeout timeout);
 
+#endif // ndef __OS_MUTEX_H__ */

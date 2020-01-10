@@ -5,8 +5,14 @@
  *
  * This file contains definitions for the Task Manager module.
  */
+#ifndef __TM_DEFINITIONS_H__
+#define __TM_DEFINITIONS_H__
+
 #include "stdint.h" 
 #include "stdbool.h" 
+
+#include "os_sem.h"
+#include "os_timer.h"
 
 
 /**
@@ -33,16 +39,11 @@
  */
 #define TM_TASK_NAME_TM_SCHEDULER "tm_scheduler"
 
-/**
- * The TM_TASK_FUNC type is for task function pointers registered
- * with the Task Manager module.
- */
-typedef void (TM_TASK_FUNC)(void);
 
 /**
  * This type is for task ids, which uniquely identify a particular task.
  */
-typedef TM_TaskId int;
+typedef int TM_TaskId;
 
 /**
  * This type is for bitfields where each bit cooresponds to a task, given
@@ -50,18 +51,20 @@ typedef TM_TaskId int;
  * Not that the size of this bitfield must be greater than or equal to
  * TM_MAX_TASKS.
  */
-typedef TM_TaskBitField int;
+typedef int TM_TaskBitField;
 
 /**
  * This enum provides the results for Task Manager module functions.
  */
 typedef enum
 {
-	TM_RESULT_INVALID           = 0,
-	TM_RESULT_OKAY              = 1,
-	TM_RESULT_NULL_POINTER      = 2,
-	TM_RESULT_INVALID_ARGUMENT  = 3,
-	TM_RESULT_TIMER_ERROR       = 4,
+	TM_RESULT_INVALID           = 0, /**< Invalid result */
+	TM_RESULT_OKAY              = 1, /**< Successful result */
+	TM_RESULT_NULL_POINTER      = 2, /**< Null pointer detected */
+	TM_RESULT_INVALID_ARGUMENT  = 3, /**< Invalid argument provided to a TM function */
+	TM_RESULT_TIMER_ERROR       = 4, /**< Timer error */
+	TM_RESULT_TASK_SPAWN_ERROR  = 5, /**< Task spawn returned an error */
+	TM_RESULT_SEM_CREATE_ERROR  = 6, /**< Semaphore create returned an error */
 	TM_RESULT_NUM_RESULTS
 } TM_RESULT_ENUM;
 
@@ -88,7 +91,7 @@ typedef enum
 	TM_TASKSTATUS_SCHEDULE         = 2,
 	TM_TASKSTATUS_MISSED_HEARTBEAT = 3,
 	TM_TASKSTATUS_ERROR            = 4,
-}
+} TM_TASKSTATUS_ENUM;
 
 /**
  * This struct contains the information that Task Manager keeps on each
@@ -100,11 +103,12 @@ typedef struct
 	uint32_t schedule_period;
 	uint32_t heartbeat_period;
 	uint32_t ticks;
-	TM_TASK_FUNC function;
+	OS_TASK_FUNC *function;
 	int argument;
 	int stack_size;
 	int priority;
-	SemId schedule_sem;
+	OS_Sem semaphore;
+  OS_Task os_task;
 } TM_Task;
 
 /**
@@ -133,3 +137,4 @@ typedef struct
 	TM_Task tasks[TM_MAX_TASKS];
 } TM_State;
 
+#endif // ndef __TM_DEFINITIONS_H__ */

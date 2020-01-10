@@ -5,9 +5,13 @@
  *
  * Event Message definitions
  */
+#ifndef __EM_DEFINITIONS_H__
+#define __EM_DEFINITIONS_H__
+
 #include "stdint.h"
 
 #include "fsw_definitions.h"
+#include "msg_definitions.h"
 
 
 /**
@@ -24,11 +28,11 @@
  */
 typedef enum
 {
-	EM_RESULT_INVALID           = 0,
-	EM_RESULT_OKAY              = 1,
-	EM_RESULT_COULD_NOT_SEND    = 2,
-	EM_RESULT_INVALID_ARGUMENTS = 3,
-	EM_RESULT_NUM_EVENTS
+  EM_RESULT_INVALID           = 0,
+  EM_RESULT_OKAY              = 1,
+  EM_RESULT_COULD_NOT_SEND    = 2,
+  EM_RESULT_INVALID_ARGUMENTS = 3,
+  EM_RESULT_NUM_EVENTS
 } EM_RESULT_ENUM;
 
 /**
@@ -36,11 +40,11 @@ typedef enum
  */
 typedef struct
 {
-	MSG_Header header;
-	FSW_MODULEID_ENUM module;
-	uint16_t event_id;
-	uint16_t line_number;
-	uint32_t params[EM_NUM_PARAMS];
+  MSG_Header header;
+  FSW_MODULEID_ENUM module;
+  uint16_t event_id;
+  uint16_t line_number;
+  uint32_t params[EM_NUM_PARAMS];
 } EM_Event;
 
 /**
@@ -48,9 +52,9 @@ typedef struct
  */
 typedef struct
 {
-	uint32_t messages_received;
-	uint32_t messages_sent;
-	uint32_t message_errors;
+  uint32_t messages_received;
+  uint32_t messages_sent;
+  uint32_t message_errors;
 } EM_Status;
 
 /**
@@ -58,7 +62,7 @@ typedef struct
  */
 typedef struct
 {
-	EM_Status status;
+  EM_Status status;
 } EM_State;
 
-
+#endif // ndef __EM_DEFINITIONS_H__ */

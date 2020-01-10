@@ -5,7 +5,16 @@
  *
  * This file contains the definition for the Telemetry module.
  */
+#ifndef __TLM_DEFINITIONS_H__
+#define __TLM_DEFINITIONS_H__
+
 #include "stdint.h"
+
+#include "tbl_definitions.h"
+#include "tlm_definitions.h"
+#include "mb_definitions.h"
+#include "em_definitions.h"
+#include "tm_definitions.h"
 
 
 /**
@@ -23,9 +32,9 @@
  */
 typedef enum
 {
-	TLM_RESULT_INVALID = 0, /*<< Invalid result */
-	TLM_RESULT_OKAY    = 1, /*<< Success */
-	TLM_RESULT_NUM_RESULTS /**< The number of Telemetry module result types */
+  TLM_RESULT_INVALID = 0, /*<< Invalid result */
+  TLM_RESULT_OKAY    = 1, /*<< Success */
+  TLM_RESULT_NUM_RESULTS /**< The number of Telemetry module result types */
 } TLM_RESULT_ENUM;
 
 /**
@@ -33,8 +42,8 @@ typedef enum
  */
 typedef struct
 {
-	uint32_t telemetry_sent;
-	uint32_t telemetry_errors;
+  uint32_t telemetry_sent;
+  uint32_t telemetry_errors;
 } TLM_Status;
 
 /**
@@ -42,7 +51,7 @@ typedef struct
  */
 typedef struct
 {
-	TLM_Status status;
+  TLM_Status status;
 } TLM_State;
 
 /**
@@ -51,11 +60,11 @@ typedef struct
  */
 typedef struct
 {
-	TLM_Status tlm;
-	MB_Status  mb;
-	EM_Status  em;
-	TBL_Status tbl;
-	TM_Status  tm;
+  TLM_Status tlm;
+  MB_Status  mb;
+  EM_Status  em;
+  TBL_Status tbl;
+  TM_Status  tm;
 } TLM_Telemetry;
 
 /**
@@ -64,7 +73,8 @@ typedef struct
  */
 typedef struct
 {
-	MSG_Header header;
-	TLM_Telemetry telemetry;
+  MSG_Header header;
+  TLM_Telemetry telemetry;
 } TLM_TelemetryMessage;
 
+#endif // ndef __TLM_DEFINITIONS_H__ */

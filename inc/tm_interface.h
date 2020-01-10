@@ -5,6 +5,11 @@
  *
  * This file contains the interface to the Task Manager module.
  */
+#ifndef __TM_INTERFACE_H__
+#define __TM_INTERFACE_H__
+
+#include "os_task.h"
+
 #include "fsw_definitions.h"
 
 #include "tm_definitions.h"
@@ -44,12 +49,12 @@ FSW_RESULT_ENUM tm_initialize(void);
  * @param[in] priority - the task priority.
  */
 TM_RESULT_ENUM tm_periodic_task(char *task_name,
-		            TM_TaskId task_id,
-		            TM_TASK_FUNC *task_function,
-			    int task_argument,
-			    int periodic,
-			    int heartbeat_period,
-			    int priority);
+                                TM_TaskId task_id,
+                                OS_TASK_FUNC *task_function,
+                                int task_argument,
+                                int period,
+                                int heartbeat_period,
+                                int priority);
 
 /**
  * @brief tm_event_task
@@ -60,16 +65,18 @@ TM_RESULT_ENUM tm_periodic_task(char *task_name,
  * @param[in] task_id - a unique integer identifying the task.
  * @param[in] task_function - a function pointer to use when spawning the task.
  * @param[in] task_argument - a single argument to provide to the start function.
+ * @param[in] stack_size - the stack size to give to the task when it is spawned
  * @param[in] heartbeat_period - the maximum number of ticks between heartbeats
  *                               for this task.
  * @param[in] priority - the task priority.
  */
 TM_RESULT_ENUM tm_event_task(char *task_name,
-		             TM_TaskId task_id,
-		             TM_TASK_FUNC *task_function,
-		             int task_argument,
-			     int heartbeat_period,
-		             int priority);
+                             TM_TaskId task_id,
+                             OS_TASK_FUNC *task_function,
+                             int task_argument,
+                             int heartbeat_period,
+                             int stack_size,
+                             int priority);
 
 /**
  * @brief tm_callback_task
@@ -86,10 +93,10 @@ TM_RESULT_ENUM tm_event_task(char *task_name,
  * @param[in] period - the period at which to run the registered callback.
  */
 TM_RESULT_ENUM tm_callback_task(char *task_name,
-		                TM_TaskId task_id,
-                                TM_TASK_FUNC *task_function,
+                                TM_TaskId task_id,
+                                OS_TASK_FUNC *task_function,
                                 int task_argument,
-			        int period);
+                                int period);
 
 /**
  * @brief tm_monitor_task
@@ -164,3 +171,5 @@ TM_RESULT_ENUM tm_start(void);
  * it will do nothing.
  */
 void tm_get_status(TM_Status *status);
+
+#endif // ndef __TM_INTERFACE_H__ */

@@ -7,6 +7,9 @@
  *
  * The message module contains defintiions for messages.
  */
+#ifndef __MSG_DEFINITIONS_H__
+#define __MSG_DEFINITIONS_H__
+
 #include "stdint.h"
 
 
@@ -33,7 +36,7 @@ typedef enum
   MSG_PACKETTYPE_COMMAND   = 1,
   MSG_PACKETTYPE_TELEMETRY = 2,
   MSG_PACKETTYPE_NUM_TYPES
-} MSG_PACKETTYPE_ENUM
+} MSG_PACKETTYPE_ENUM;
 
 /**
  * This enum is the packet type of a message.
@@ -56,3 +59,4 @@ typedef struct
     uint16_t length;
 } MSG_Header;
 
+#endif // ndef __MSG_DEFINITIONS_H__ */

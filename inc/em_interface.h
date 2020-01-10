@@ -10,6 +10,13 @@
  * This module provides a mechanism to send small messages indicating
  * events within the system.
  */
+#ifndef __EM_INTERFACE_H__
+#define __EM_INTERFACE_H__
+
+#include "stdint.h"
+
+#include "em_definitions.h"
+
 
 /**
  * @brief EM_Initialize
@@ -28,12 +35,13 @@ FSW_RESULT_ENUM em_initialize(void);
  * This function sends an event message.
  */
 EM_RESULT_ENUM em_event(FSW_MODULEID_ENUM module_id,
-		        uint32_t line_number,
-			uint32_t param0,
-			uint32_t param1,
-			uint32_t param2,
-			uint32_t param3,
-			uint32_t param4);
+                        uint16_t event_id,
+                        uint32_t line_number,
+                        uint32_t param0,
+                        uint32_t param1,
+                        uint32_t param2,
+                        uint32_t param3,
+                        uint32_t param4);
 
 /**
  * @brief em_get_status
@@ -43,3 +51,5 @@ EM_RESULT_ENUM em_event(FSW_MODULEID_ENUM module_id,
  * will do nothing.
  */
 void em_get_status(EM_Status *status);
+
+#endif // ndef __EM_INTERFACE_H__ */

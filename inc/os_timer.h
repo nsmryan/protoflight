@@ -8,6 +8,9 @@
  * The watchdog is simply a timer that does not reset automatically.
  * The terminology 'watchdog' instead of 'timer' comes from VxWorks APIs.
  */
+#ifndef __OS_TIMER_H__
+#define __OS_TIMER_H__
+
 #include "os_definitions.h"
 
 
@@ -44,5 +47,6 @@ OS_RESULT_ENUM os_timer_create(OS_Timer *watchdog);
  * @return A value of type OS_TASK_STATUS_ENUM, indicating the
  * current status of the task.
  */
-OS_RESULT_ENUM os_timer_start(OS_timer *timer, OS_TIMER_FUNC function, OS_Timeout timeout);
+OS_RESULT_ENUM os_timer_start(OS_Timer *timer, OS_TIMER_FUNC function, OS_Timeout timeout);
 
+#endif // ndef __OS_TIMER_H__ */

@@ -5,6 +5,9 @@
  *
  * This file contains definitions for the Message Bus module
  */
+#ifndef __MB_DEFINITIONS_H__
+#define __MB_DEFINITIONS_H__
+
 #include "stdint.h"
 
 #include "fsw_definitions.h"
@@ -72,9 +75,10 @@ typedef struct
  */
 typedef struct
 {
-    FSW_Queue pipes[MB_MAX_NUM_PIPES];
+    OS_Queue pipes[MB_MAX_NUM_PIPES];
     MB_PipeData packets[MSG_PACKETTYPE_NUM_TYPES];
     uint16_t num_pipes;
     MB_Status status;
 } MB_State;
 
+#endif // ndef __MB_DEFINITIONS_H__ */

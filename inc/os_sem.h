@@ -6,6 +6,11 @@
  * This file contains definitions for the OS semaphore abstraction
  * used by the fsw.
  */
+#ifndef __OS_SEM_H__
+#define __OS_SEM_H__
+
+#include "pthread.h"
+
 #include "os_definitions.h"
 
 
@@ -13,7 +18,11 @@
  * This definition is for the internal representation of a semaphore
  * within the OS abstraction.
  */
-typedef OS_Sem int;
+typedef struct OS_Sem
+{
+  pthread_cond_t cond;
+  pthread_mutex_t mutex;
+} OS_Sem;
 
 
 /**
@@ -24,7 +33,7 @@ typedef OS_Sem int;
  * @return A OS result type either indicating success (OS_RESULT_OKAY)
  * or an error code indicating the cause of the error.
  */
-OS_RESULT_ENUM os_sem_create(os_sem *sem);
+OS_RESULT_ENUM os_sem_create(OS_Sem *sem);
 
 /**
  * @brief os_sem_give
@@ -34,7 +43,7 @@ OS_RESULT_ENUM os_sem_create(os_sem *sem);
  * @return An OS result indicating either success (OS_RESULT_OKAY)
  * or indicating the cause of the error.
  */
-OS_RESULT_ENUM os_sem_give(os_sem sem);
+OS_RESULT_ENUM os_sem_give(OS_Sem *sem);
 
 /**
  * @brief os_sem_take
@@ -51,5 +60,6 @@ OS_RESULT_ENUM os_sem_give(os_sem sem);
  * @return An OS result type either indicating success (OS_RESULT_OKAY)
  * or an error code indicating the cause of the error.
  */
-OS_RESULT_ENUM os_sem_take(os_sem sem, FSW_Timeout timeout);
+OS_RESULT_ENUM os_sem_take(OS_Sem *sem, OS_Timeout timeout);
 
+#endif // ndef __OS_SEM_H__ */
