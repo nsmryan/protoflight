@@ -7,6 +7,7 @@
  * abstraction used by the FSW.
  */
 #include "stdbool.h"
+#include "string.h"
 
 #include "errno.h"
 
@@ -70,7 +71,7 @@ OS_RESULT_ENUM os_mutex_create(OS_Mutex *mutex)
   return result;
 }
 
-OS_RESULT_ENUM os_mutex_give(OS_Mutex *mutex, OS_Timeout timeout)
+OS_RESULT_ENUM os_mutex_take(OS_Mutex *mutex, OS_Timeout timeout)
 {
   OS_RESULT_ENUM result = OS_RESULT_OKAY;
 
@@ -104,7 +105,7 @@ OS_RESULT_ENUM os_mutex_give(OS_Mutex *mutex, OS_Timeout timeout)
   return result;
 }
 
-OS_RESULT_ENUM os_mutex_take(OS_Mutex *mutex, OS_Timeout timeout)
+OS_RESULT_ENUM os_mutex_give(OS_Mutex *mutex)
 {
   OS_RESULT_ENUM result = OS_RESULT_OKAY;
 

@@ -323,7 +323,7 @@ TM_TASKSTATUS_ENUM tm_update_task(TM_Task *task)
 TM_RESULT_ENUM tm_rate_task(char *task_name,
                             TM_TaskId task_id,
                             OS_TASK_FUNC *task_function,
-                            int task_argument,
+                            void *task_argument,
                             int period,
                             int heartbeat_period,
                             int stack_size,
@@ -373,7 +373,7 @@ TM_RESULT_ENUM tm_rate_task(char *task_name,
 TM_RESULT_ENUM tm_event_task(char *task_name,
                              TM_TaskId task_id,
                              OS_TASK_FUNC *task_function,
-                             int task_argument,
+                             void *task_argument,
                              int heartbeat_period,
                              int stack_size,
                              int priority)
@@ -405,7 +405,7 @@ TM_RESULT_ENUM tm_event_task(char *task_name,
 TM_RESULT_ENUM tm_callback_task(char *task_name,
                                 TM_TaskId task_id,
                                 OS_TASK_FUNC *task_function,
-                                int task_argument,
+                                void *task_argument,
                                 int period)
 {
   TM_RESULT_ENUM tm_result = TM_RESULT_OKAY;

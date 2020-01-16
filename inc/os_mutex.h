@@ -20,7 +20,7 @@
  * This definition is for the internal representation of a mutex
  * within the OS abstraction.
  */
-typedef OS_Mutex pthread_mutex_t;
+typedef pthread_mutex_t OS_Mutex;
 
 /**
  * @brief os_mutex_create
@@ -31,16 +31,6 @@ typedef OS_Mutex pthread_mutex_t;
  * or an error code indicating the cause of the error.
  */
 OS_RESULT_ENUM os_mutex_create(OS_Mutex *mutex);
-
-/**
- * @brief os_mutex_give
- *
- * This function gives a mutex.
- *
- * @return An OS result indicating either success (OS_RESULT_OKAY)
- * or indicating the cause of the error.
- */
-OS_RESULT_ENUM os_mutex_give(OS_Mutex *mutex);
 
 /**
  * @brief os_mutex_take
@@ -58,5 +48,15 @@ OS_RESULT_ENUM os_mutex_give(OS_Mutex *mutex);
  * or an error code indicating the cause of the error.
  */
 OS_RESULT_ENUM os_mutex_take(OS_Mutex *mutex, OS_Timeout timeout);
+
+/**
+ * @brief os_mutex_give
+ *
+ * This function gives a mutex.
+ *
+ * @return An OS result indicating either success (OS_RESULT_OKAY)
+ * or indicating the cause of the error.
+ */
+OS_RESULT_ENUM os_mutex_give(OS_Mutex *mutex);
 
 #endif // ndef __OS_MUTEX_H__ */

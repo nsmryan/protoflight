@@ -123,49 +123,65 @@ MB_RESULT_ENUM mb_create_pipe(MB_Pipe *pipe, uint16_t msg_size_bytes, uint16_t n
 
     if (pipe != NULL)
     {
-         if (gvMB_state.next_pipe < MB_MAX_NUM_PIPES)
-   {
-       OS_Queue queue_id;
+      if (gvMB_state.num_pipes < MB_MAX_NUM_PIPES)
+      {
+        OS_Queue queue_id;
 
-             OS_RESULT_ENUM os_result =
-         os_queue_create(&queue_id, msg_size_bytes, num_msgs);
-       if (os_result == OS_RESULT_OKAY)
-       {
-         gvMB_state.pipes[gvMB_state.next_pipe] = queue_id;
-       }
-       else
-       {
-         result = MB_RESULT_PIPE_CREATE_FAILED;
-       }
-   }
-   else
-   {
-     result = MB_RESULT_MAX_PIPES_REACHED;
-   }
+        OS_RESULT_ENUM os_result =
+          os_queue_create(&queue_id, msg_size_bytes, num_msgs);
+
+        if (os_result == OS_RESULT_OKAY)
+        {
+          gvMB_state.pipes[gvMB_state.num_pipes] = queue_id;
+        }
+        else
+        {
+          result = MB_RESULT_PIPE_CREATE_FAILED;
+        }
+      }
+      else
+      {
+        result = MB_RESULT_MAX_PIPES_REACHED;
+      }
     }
     else
     {
-        result = MB_RESULT_NULL_POINTER;
+      result = MB_RESULT_NULL_POINTER;
+    }
+
+    if (result == MB_RESULT_OKAY)
+    {
+      *pipe = gvMB_state.num_pipes;
+
+      gvMB_state.num_pipes++;
     }
 
     return result;
 }
 
-MB_RESULT_ENUM mb_register_packet(MB_Pipe pipe, MSG_PACKETTYPE_ENUM packet_type)
+MB_RESULT_ENUM mb_register_packet(MB_Pipe *pipe, MSG_PACKETTYPE_ENUM packet_type)
 {
   MB_RESULT_ENUM result = MB_RESULT_OKAY;
 
-  if ((pipe < gvMB_state.num_pipes) && (packet_type < MSG_PACKETTYPE_NUM_TYPES))
+  if (pipe == NULL)
   {
-    uint16_t pipe_index = gvMB_state.pipe_data[packet_type].num_pipes;
-
-    gvMB_state.packets[packet_type].pipes[pipe_index] = pipe;
-
-    gvMB_state.packets[packet_type].num_pipes++;
+    result = MB_RESULT_NULL_POINTER;
   }
-  else
+
+  if (result == MB_RESULT_OKAY)
   {
-    result = MB_RESULT_INVALID_ARGUMENTS;
+    if ((*pipe < gvMB_state.num_pipes) && (packet_type < MSG_PACKETTYPE_NUM_TYPES))
+    {
+      uint16_t pipe_index = gvMB_state.pipe_data[packet_type].num_pipes;
+
+      gvMB_state.packets[packet_type].pipes[pipe_index] = *pipe;
+
+      gvMB_state.packets[packet_type].num_pipes++;
+    }
+    else
+    {
+      result = MB_RESULT_INVALID_ARGUMENTS;
+    }
   }
 
   return result;

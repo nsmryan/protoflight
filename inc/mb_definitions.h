@@ -34,6 +34,8 @@
 #define MB_EVENT_MESSAGE_NOT_SENT 1
 
 
+typedef uint32_t MB_Pipe;
+
 /**
  * The MB_RESULT_ENUM is used as the return value from MB module functions.
  * It either indicates a successful return from a function, or it indicates the

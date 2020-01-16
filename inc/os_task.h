@@ -25,7 +25,7 @@ typedef pthread_t OS_Task;
  * The OS_TASK_FUNC type is for task function pointers registered
  * with the Task Manager module.
  */
-typedef void (OS_TASK_FUNC)(int);
+typedef void (OS_TASK_FUNC)(void*);
 
 /**
  * This enum provides possible task status' returned by
@@ -51,7 +51,7 @@ typedef enum
  */
 OS_RESULT_ENUM os_task_spawn(OS_Task *task,
                              OS_TASK_FUNC *function,
-                             int argument,
+                             void *argument,
                              int priority,
                              int stack_size);
 

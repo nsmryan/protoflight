@@ -6,6 +6,7 @@
  * This file contains the implementation for the OS task abstraction used
  * by the fsw.
  */
+#include "stdlib.h"
 #include "string.h"
 
 #include "unistd.h"
@@ -17,9 +18,30 @@
 #include "os_task.h"
 
 
+typedef struct OS_Task_Arg
+{
+  void *argument;
+  OS_TASK_FUNC *function;
+} OS_Task_Arg;
+
+
+void *os_task_pthread_function(void *argument)
+{
+  OS_Task_Arg *task_arg = (OS_Task_Arg*)argument;
+
+  if ((task_arg != NULL) && (task_arg->function != NULL))
+  {
+    // the task argument is not checked for NULL- a task that does not use
+    // the argument may have NULL passed int.
+    task_arg->function(task_arg->argument);
+  }
+
+  return NULL;
+}
+
 OS_RESULT_ENUM os_task_spawn(OS_Task *task,
                              OS_TASK_FUNC function,
-                             int argument,
+                             void *argument,
                              int priority,
                              int stack_size)
 {
@@ -101,7 +123,13 @@ OS_RESULT_ENUM os_task_spawn(OS_Task *task,
   // create the thread itself
   if (result == OS_RESULT_OKAY)
   {
-    ret_code = pthread_create(task, &attr, function, (void*)argument);
+    OS_Task_Arg *pthread_argument =
+      (OS_Task_Arg*)calloc(1, sizeof(OS_Task_Arg));
+
+    pthread_argument->argument = argument;
+    pthread_argument->function = function;
+
+    ret_code = pthread_create(task, &attr, os_task_pthread_function, pthread_argument);
 
     if (ret_code < 0)
     {
@@ -112,7 +140,7 @@ OS_RESULT_ENUM os_task_spawn(OS_Task *task,
   // detach the thread, cleaning up resources (taken from NASA OSAL)
   if (result == OS_RESULT_OKAY)
   {
-    ret_code = pthread_detach(task);
+    ret_code = pthread_detach(*task);
 
     if (ret_code < 0)
     {

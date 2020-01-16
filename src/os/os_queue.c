@@ -7,6 +7,7 @@
  * queues.
  */
 #include "stdint.h"
+#include "stdio.h"
 
 #include "fcntl.h"
 #include "errno.h"
@@ -33,13 +34,25 @@
 #define OS_QUEUE_PRIORITY 1
 
 
+/**
+ * This global variable is the number of queues allocated.
+ * It is used to provide a queue name for each created queue.
+ */
+static int gvOS_queue_num_queues = 0;
+
+
 OS_RESULT_ENUM os_queue(OS_Queue *queue,
                         uint32_t num_msgs,
                         uint32_t msg_size_bytes)
 {
   OS_RESULT_ENUM result = OS_RESULT_OKAY;
+
   int ret_code = 0;
+
+  char queue_name[OS_CONFIG_MAX_NAME_LENGTH];
+
   struct mq_attr attr;
+
 
   attr.mq_maxmsg = num_msgs;
   attr.mq_msgsize = msg_size_bytes;
@@ -52,9 +65,7 @@ OS_RESULT_ENUM os_queue(OS_Queue *queue,
 
   if (ret_code == 0)
   {
-    char queue_name[OS_CONFIG_MAX_NAME_LENGTH];
-
-    ret_code = sprintf(queue_name, "/Fsw_Queue_%d", os_queue_num_queues);
+    ret_code = sprintf(queue_name, "/Fsw_Queue_%d", gvOS_queue_num_queues);
 
     if (ret_code < 0)
     {
@@ -64,7 +75,7 @@ OS_RESULT_ENUM os_queue(OS_Queue *queue,
 
   if (ret_code == 0)
   {
-    os_queue_num_queues++;
+    gvOS_queue_num_queues++;
 
     mqd_t temp_queue =
       mq_open(queue_name, O_RDWR | O_CREAT, OS_QUEUE_MODE, &attr);
@@ -94,7 +105,7 @@ OS_RESULT_ENUM os_queue_send(OS_Queue *queue,
 
   struct timespec timeout_spec;
 
-  if ((queue == NULL) || (buffer_size_bytes == NULL))
+  if ((queue == NULL) || (buffer == NULL))
   {
     result = OS_RESULT_NULL_POINTER;
   }
@@ -150,8 +161,9 @@ OS_RESULT_ENUM os_queue_receive(OS_Queue *queue,
     timeout_spec.tv_sec = nanoseconds % OS_NANOSECONDS_PER_SECOND;
     timeout_spec.tv_nsec = nanoseconds / OS_NANOSECONDS_PER_SECOND;;
 
+    int priority = OS_QUEUE_PRIORITY;
     msg_size =
-      mq_timedreceive(*queue, buffer, *buffer_size_bytes, OS_QUEUE_PRIORITY, &timeout_spec);
+      mq_timedreceive(*queue, buffer, *buffer_size_bytes, &priority, &timeout_spec);
 
     if (msg_size > 0)
     {

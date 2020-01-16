@@ -104,7 +104,7 @@ typedef struct
 	uint32_t heartbeat_period;
 	uint32_t ticks;
 	OS_TASK_FUNC *function;
-	int argument;
+	void *argument;
 	int stack_size;
 	int priority;
 	OS_Sem semaphore;
