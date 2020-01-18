@@ -59,8 +59,9 @@ MB_RESULT_ENUM mb_send(MSG_Header *message, OS_Timeout timeout);
  * @return Either success (MB_RESULT_OKAY), or an error code indicating the
  *         source of the error.
  */
-MB_RESULT_ENUM mb_receive(MB_Pipe *pipeId,
+MB_RESULT_ENUM mb_receive(MB_Pipe pipeId,
                           MSG_Header *message,
+                          uint32_t *msg_size,
                           OS_Timeout timeout);
 
 /**

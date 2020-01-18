@@ -41,9 +41,9 @@
 static int gvOS_queue_num_queues = 0;
 
 
-OS_RESULT_ENUM os_queue(OS_Queue *queue,
-                        uint32_t num_msgs,
-                        uint32_t msg_size_bytes)
+OS_RESULT_ENUM os_queue_create(OS_Queue *queue,
+                               uint32_t num_msgs,
+                               uint32_t msg_size_bytes)
 {
   OS_RESULT_ENUM result = OS_RESULT_OKAY;
 
@@ -60,35 +60,43 @@ OS_RESULT_ENUM os_queue(OS_Queue *queue,
 
   if (queue == NULL)
   {
-    ret_code = -1;
+    result = OS_RESULT_NULL_POINTER;
   }
 
-  if (ret_code == 0)
+  if (result == OS_RESULT_OKAY)
+  {
+    if ((num_msgs == 0) || (msg_size_bytes == 0))
+    {
+      result = OS_RESULT_INVALID_ARGUMENTS;
+    }
+  }
+
+  if (result == OS_RESULT_OKAY)
   {
     ret_code = sprintf(queue_name, "/Fsw_Queue_%d", gvOS_queue_num_queues);
 
     if (ret_code < 0)
     {
-      ret_code = -1;
+      result = OS_RESULT_ERROR;
     }
   }
 
-  if (ret_code == 0)
+  if (result == OS_RESULT_OKAY)
   {
     gvOS_queue_num_queues++;
 
     mqd_t temp_queue =
       mq_open(queue_name, O_RDWR | O_CREAT, OS_QUEUE_MODE, &attr);
 
+    printf("errno = %d\n", errno);
     if (temp_queue != ((mqd_t) -1))
     {
       *queue = temp_queue;
     }
-  }
-
-  if (ret_code != 0)
-  {
-    result = OS_RESULT_ERROR;
+    else
+    {
+      result = OS_RESULT_QUEUE_CREATE_ERROR;
+    }
   }
 
   return result;

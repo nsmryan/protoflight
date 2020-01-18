@@ -320,14 +320,14 @@ TM_TASKSTATUS_ENUM tm_update_task(TM_Task *task)
   return tm_status;
 }
 
-TM_RESULT_ENUM tm_rate_task(char *task_name,
-                            TM_TaskId task_id,
-                            OS_TASK_FUNC *task_function,
-                            void *task_argument,
-                            int period,
-                            int heartbeat_period,
-                            int stack_size,
-                            int priority)
+TM_RESULT_ENUM tm_periodic_task(char *task_name,
+                                TM_TaskId task_id,
+                                OS_TASK_FUNC *task_function,
+                                void *task_argument,
+                                int period,
+                                int heartbeat_period,
+                                int stack_size,
+                                int priority)
 {
   TM_RESULT_ENUM tm_result = TM_RESULT_OKAY;
 

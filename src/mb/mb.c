@@ -51,22 +51,23 @@ MB_RESULT_ENUM mb_send(MSG_Header *message, OS_Timeout timeout)
          pipe_index < gvMB_state.packets[packet_type].num_pipes;
          pipe_index++)
     {
-      MB_Pipe pipe = gvMB_state.packets[packet_type].pipes[pipe_index];
+      OS_Queue queue = gvMB_state.packets[packet_type].pipes[pipe_index];
+
       OS_RESULT_ENUM os_result =
-        os_queue_send(pipe,
-                      message,
+        os_queue_send(&queue,
+                      (uint8_t*)message,
                       msg_size,
                       timeout);
 
       if (os_result == OS_RESULT_OKAY)
       {
         em_event(FSW_MODULEID_MB,
-           MB_EVENT_MESSAGE_NOT_SENT,
-           __LINE__,
-           (uint32_t)packet_type,
-           (uint32_t)pipe_index,
-           (uint32_t)pipe,
-           0, 0);
+                 MB_EVENT_MESSAGE_NOT_SENT,
+                 __LINE__,
+                 (uint32_t)packet_type,
+                 (uint32_t)pipe_index,
+                 (uint32_t)queue,
+                 0, 0);
       }
       else
       {
@@ -91,12 +92,12 @@ MB_RESULT_ENUM mb_send(MSG_Header *message, OS_Timeout timeout)
 
 MB_RESULT_ENUM mb_receive(MB_Pipe pipe_id,
                           MSG_Header *message,
-                          uint16_t msg_size,
+                          uint32_t *msg_size,
                           OS_Timeout timeout)
 {
   MB_RESULT_ENUM result = MB_RESULT_OKAY;
 
-  if (message == NULL)
+  if ((message == NULL) || (msg_size == NULL))
   {
     result = MB_RESULT_NULL_POINTER;
   }
@@ -111,7 +112,7 @@ MB_RESULT_ENUM mb_receive(MB_Pipe pipe_id,
 
   if (result == MB_RESULT_OKAY)
   {
-    os_queue_receive(pipe_id, message, msg_size, timeout);
+    os_queue_receive(&gvMB_state.pipes[pipe_id], (uint8_t*)message, msg_size, timeout);
   }
 
   return result;
@@ -172,7 +173,7 @@ MB_RESULT_ENUM mb_register_packet(MB_Pipe *pipe, MSG_PACKETTYPE_ENUM packet_type
   {
     if ((*pipe < gvMB_state.num_pipes) && (packet_type < MSG_PACKETTYPE_NUM_TYPES))
     {
-      uint16_t pipe_index = gvMB_state.pipe_data[packet_type].num_pipes;
+      uint16_t pipe_index = gvMB_state.packets[packet_type].num_pipes;
 
       gvMB_state.packets[packet_type].pipes[pipe_index] = *pipe;
 

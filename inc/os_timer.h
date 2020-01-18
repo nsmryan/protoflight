@@ -11,6 +11,8 @@
 #ifndef __OS_TIMER_H__
 #define __OS_TIMER_H__
 
+#include <signal.h>
+
 #include "os_definitions.h"
 
 

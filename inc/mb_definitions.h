@@ -10,6 +10,8 @@
 
 #include "stdint.h"
 
+#include "os_queue.h"
+
 #include "fsw_definitions.h"
 #include "msg_definitions.h"
 

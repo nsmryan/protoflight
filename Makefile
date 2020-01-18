@@ -8,14 +8,14 @@ MAKEFLAGS += --warn-undefined-variables
 MAKEFLAGS += --no-builtin-rules
 
 
-CC=gcc
 CFLAGS=-Iinc
-LDFLAGS=-lrt -lpthreads
+LDFLAGS=-lrt -pthread -L/usr/lib/x86_64-linux-gnu/
 BUILDDIR=build
+
 
 build/test: $(shell find src test -type f -name *.c)
 	mkdir -p $(BUILDDIR)
-	$(CC) -o $@ $(CFLAGS) -Itest/unity/ $^ test/unity/*.c -DUNITY_FIXTURE_NO_EXTRAS
+	$(CC) -static -o $@ $^ -Itest/unity/ -DUNITY_FIXTURE_NO_EXTRAS -DFSW_UNIT_TEST $(CFLAGS) ${LDFLAGS} 
 
 clean:
 	rm -rf $(BUILDDIR)

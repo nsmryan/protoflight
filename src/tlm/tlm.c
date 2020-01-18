@@ -36,6 +36,7 @@ FSW_RESULT_ENUM tlm_initialize(void)
                      FSW_TASK_NO_ARGUMENT,
                      FSW_TASK_RATE_1_HZ,
                      FSW_HEARBEAT_RATE_1_HZ,
+                     FSW_DEFAULT_STACK_SIZE,
                      FSW_PRIORITY_TLM_TASK);
 
   if (tm_result != TM_RESULT_OKAY)
@@ -46,7 +47,15 @@ FSW_RESULT_ENUM tlm_initialize(void)
   return result;
 }
 
-void tlm_telemetry_task(int unused)
+void tlm_get_status(TLM_Status *status)
+{
+  if (status != NULL)
+  {
+    *status = gvTLM_state.status;
+  }
+}
+
+void tlm_telemetry_task(void *argument)
 {
   TLM_TelemetryMessage telemetry = {0};
 

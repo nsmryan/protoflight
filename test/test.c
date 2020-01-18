@@ -1,5 +1,5 @@
 /**
- * @file em.c
+ * @file test.c
  *
  * @author Noah Ryan
  *
@@ -7,6 +7,8 @@
  * for protoflight. Building protoflight for unit tests
  * will execute each module's unit tests as Unity fixtures.
  */
+#if defined(FSW_UNIT_TEST)
+
 #include "unity_fixture.h"
 
 
@@ -19,3 +21,5 @@ int main(int argc, char const *argv[])
 {
   UnityMain(argc, argv, Test_RunAllTests);
 }
+
+#endif

@@ -61,6 +61,8 @@ typedef enum
 	OS_RESULT_MSG_SIZE_ERROR     = 4, /*<< Message provided was too large */
 	OS_RESULT_MAX_TIMERS_REACHED = 5, /*<< Maximum number of timers reached */
 	OS_RESULT_ERROR              = 6, /*<< An error was returned by an OS function */
+	OS_RESULT_INVALID_ARGUMENTS  = 7, /*<< Invalid arguments provided to an os abstraction function */
+	OS_RESULT_QUEUE_CREATE_ERROR = 8, /*<< Error creating queue */
 	OS_RESULT_NUM_RESULTS /*<< Number of result codes */
 } OS_RESULT_ENUM;
 

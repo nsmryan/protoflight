@@ -54,6 +54,7 @@ TM_RESULT_ENUM tm_periodic_task(char *task_name,
                                 void *task_argument,
                                 int period,
                                 int heartbeat_period,
+                                int stack_size,
                                 int priority);
 
 /**

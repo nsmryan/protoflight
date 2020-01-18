@@ -24,7 +24,7 @@ FSW_RESULT_ENUM tlm_initialize(void);
  * @param[in] unused - this argument is not used, but is provided
  * because all tasks registered with Task Manager take 1 argument.
  */
-void tlm_telemetry_task(int unused);
+void tlm_telemetry_task(void *argument);
 
 /**
  * @brief tlm_get_status

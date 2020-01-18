@@ -10,9 +10,9 @@
 
 #include "string.h"
 
+#include <signal.h>
+#include <errno.h>
 #include "sys/types.h"
-#include "sys/signal.h"
-#include "sys/errno.h"
 
 #include "os_definitions.h"
 #include "os_timer.h"

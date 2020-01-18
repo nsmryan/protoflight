@@ -10,6 +10,12 @@
 
 /* General Task Definitions */
 /**
+ * This definition is the default stack size for FSW tasks.
+ * This is used for all core modules tasks.
+ */
+#define FSW_DEFAULT_STACK_SIZE (1024 * 20)
+
+/**
  * This definition is used when providing the task argument for a task
  * that does not use its argument.
  */
