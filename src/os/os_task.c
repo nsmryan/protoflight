@@ -9,6 +9,7 @@
 #include "stdlib.h"
 #include "string.h"
 
+#include "signal.h"
 #include "unistd.h"
 #include "sys/types.h"
 
@@ -56,6 +57,22 @@ OS_RESULT_ENUM os_task_spawn(OS_Task *task,
   if ((task == NULL) || (function == NULL))
   {
     result = OS_RESULT_NULL_POINTER;
+  }
+
+  if (result == OS_RESULT_OKAY)
+  {
+    if (stack_size == 0)
+    {
+      result = OS_RESULT_INVALID_ARGUMENTS;
+    }
+  }
+
+  if (result == OS_RESULT_OKAY)
+  {
+    if ((priority < SIGRTMIN) || (priority > SIGRTMAX))
+    {
+      result = OS_RESULT_INVALID_ARGUMENTS;
+    }
   }
 
   // initialize the pthread attributes
@@ -110,7 +127,11 @@ OS_RESULT_ENUM os_task_spawn(OS_Task *task,
       struct sched_param priority_struct;
 
       memset(&priority_struct, 0, sizeof(priority));
-      priority_struct.sched_priority = priority;
+
+      // the priority is swapped from low numbers as high priority to high numbers as
+      // high priority to comply with POSIX RT priorities.
+      // The range of priority was checked above, so this subtraction cannot be < 0.
+      priority_struct.sched_priority = SIGRTMAX - priority;
 
       ret_code = pthread_attr_setschedparam(&attr, &priority_struct);
       if (ret_code < 0)
