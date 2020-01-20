@@ -20,7 +20,7 @@
  * in this abstraction layer. This allows it to either point to
  * queue data, or to a handle passed to OS queue functions.
  */
-typedef mqd_t OS_Queue;
+typedef struct OS_Queue OS_Queue;
 
 
 /**

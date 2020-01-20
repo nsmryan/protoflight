@@ -6,6 +6,7 @@
  * This file contains the implementation of the OS abstraction for message
  * queues.
  */
+#if !defined(OS_QUEUE_UDP)
 #include "stdint.h"
 #include "stdio.h"
 
@@ -15,8 +16,6 @@
 #include "sys/stat.h"
 
 #include "mqueue.h"
-
-#include "pthread.h"
 
 #include "os_definitions.h"
 #include "os_queue.h"
@@ -32,6 +31,13 @@
  * a message queue. All messages used the same priority.
  */
 #define OS_QUEUE_PRIORITY 1
+
+
+/**
+ * This definition fills in the forward-declaration in os_queue.h
+ * to the mqueue specific queue type.
+ */
+typedef mqd_t OS_Queue;
 
 
 /**
@@ -197,3 +203,4 @@ OS_RESULT_ENUM os_queue_receive(OS_Queue *queue,
   return result;
 }
 
+#endif /* !defined(OS_QUEUE_UDP) */
