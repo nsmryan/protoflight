@@ -258,7 +258,6 @@ OS_RESULT_ENUM os_queue_send(OS_Queue *queue,
   {
     // store the message size
     queue->msg_sizes[queue->write_offset] = buffer_size_bytes;
-    printf("msg size send = %d, offset = %d\n", buffer_size_bytes, queue->write_offset);
 
     // either we took the mutex and there was space, or we were signaled by the write_condition
     // condition variable and took the mutex that way. Either way, there is space in the queue.
@@ -355,7 +354,6 @@ OS_RESULT_ENUM os_queue_receive(OS_Queue *queue,
   {
     // update buffer size with the size stored for this message
     *buffer_size_bytes = queue->msg_sizes[queue->read_offset];
-    printf("msg size recv = %d, offset = %d\n", *buffer_size_bytes, queue->read_offset);
 
     // at this point, we either took the mutex and found a message, or we where signaled
     // indicating that a new message is available.
@@ -365,7 +363,7 @@ OS_RESULT_ENUM os_queue_receive(OS_Queue *queue,
     memcpy(buffer, &queue->buffer[buffer_offset], *buffer_size_bytes);
 
     // update the read pointer
-    queue->write_offset = (queue->write_offset + 1) % queue->num_msgs;
+    queue->read_offset = (queue->read_offset + 1) % queue->num_msgs;
 
     // signal to any threads waiting for space to open up that a message was read.
     // This has the effect of releasing the queue mutex as well.
