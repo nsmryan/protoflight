@@ -35,6 +35,8 @@ typedef struct OS_Queue
   pthread_cond_t read_condition;
 
   uint8_t *buffer;
+  uint32_t *msg_sizes;
+
   uint32_t num_msgs;
   uint32_t msg_size_bytes;
   uint32_t read_offset;

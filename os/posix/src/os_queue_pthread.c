@@ -45,6 +45,7 @@ OS_RESULT_ENUM os_queue_create(OS_Queue *queue,
   pthread_condattr_t cond_attr;
 
   uint8_t *buffer = NULL;
+  uint32_t *msg_sizes = NULL;
 
 
   if (queue == NULL)
@@ -128,10 +129,21 @@ OS_RESULT_ENUM os_queue_create(OS_Queue *queue,
     }
   }
 
+  // allocate space for messages
   if (result == OS_RESULT_OKAY)
   {
     buffer = (uint8_t*)malloc(num_msgs * msg_size_bytes);
     if (buffer == NULL)
+    {
+      result = OS_RESULT_ERROR;
+    }
+  }
+
+  // allocate space for message sizes
+  if (result == OS_RESULT_OKAY)
+  {
+    msg_sizes = (uint32_t*)malloc(num_msgs * sizeof(uint32_t));
+    if (msg_sizes == NULL)
     {
       result = OS_RESULT_ERROR;
     }
@@ -147,6 +159,7 @@ OS_RESULT_ENUM os_queue_create(OS_Queue *queue,
     queue->num_msgs = num_msgs;
     queue->msg_size_bytes = msg_size_bytes;
     queue->buffer = buffer;
+    queue->msg_sizes = msg_sizes;
   }
 
   return result;
@@ -243,10 +256,16 @@ OS_RESULT_ENUM os_queue_send(OS_Queue *queue,
 
   if (result == OS_RESULT_OKAY)
   {
+    // store the message size
+    queue->msg_sizes[queue->write_offset] = buffer_size_bytes;
+    printf("msg size send = %d, offset = %d\n", buffer_size_bytes, queue->write_offset);
+
     // either we took the mutex and there was space, or we were signaled by the write_condition
     // condition variable and took the mutex that way. Either way, there is space in the queue.
     int buffer_offset = queue->msg_size_bytes * queue->write_offset;
     memcpy(&queue->buffer[buffer_offset], buffer, buffer_size_bytes);
+
+    // update the write pointer
     queue->write_offset = (queue->write_offset + 1) % queue->num_msgs;
 
     // if any threads where blocking waiting for a message to arrive, signal them.
@@ -281,9 +300,13 @@ OS_RESULT_ENUM os_queue_receive(OS_Queue *queue,
 
   int ret_code = 0;
 
+  // this flag is necessary to ensure that we finish this function with the
+  // queue mutex released.
+  bool mutex_taken = false;
+
   struct timespec timeout_spec;
 
-  if ((queue == NULL) || (buffer_size_bytes == NULL))
+  if ((queue == NULL) || (buffer == NULL) || (buffer_size_bytes == NULL))
   {
     result = OS_RESULT_NULL_POINTER;
   }
@@ -308,6 +331,10 @@ OS_RESULT_ENUM os_queue_receive(OS_Queue *queue,
     {
       result = OS_RESULT_ERROR;
     }
+    else
+    {
+      mutex_taken = true;
+    }
   }
 
   if (result == OS_RESULT_OKAY)
@@ -319,20 +346,40 @@ OS_RESULT_ENUM os_queue_receive(OS_Queue *queue,
       if (ret_code < 0)
       {
         result = OS_RESULT_ERROR;
+        mutex_taken = false;
       }
     }
   }
 
   if (result == OS_RESULT_OKAY)
   {
+    // update buffer size with the size stored for this message
+    *buffer_size_bytes = queue->msg_sizes[queue->read_offset];
+    printf("msg size recv = %d, offset = %d\n", *buffer_size_bytes, queue->read_offset);
+
     // at this point, we either took the mutex and found a message, or we where signaled
     // indicating that a new message is available.
     int buffer_offset = queue->msg_size_bytes * queue->read_offset;
+
+    // copy the message into the given buffer
     memcpy(buffer, &queue->buffer[buffer_offset], *buffer_size_bytes);
+
+    // update the read pointer
+    queue->write_offset = (queue->write_offset + 1) % queue->num_msgs;
 
     // signal to any threads waiting for space to open up that a message was read.
     // This has the effect of releasing the queue mutex as well.
     ret_code = pthread_cond_signal(&queue->write_condition);
+    if (ret_code < 0)
+    {
+      result = OS_RESULT_ERROR;
+      mutex_taken = false;
+    }
+  }
+
+  if (mutex_taken)
+  {
+    ret_code = pthread_mutex_unlock(&queue->mutex);
     if (ret_code < 0)
     {
       result = OS_RESULT_ERROR;
