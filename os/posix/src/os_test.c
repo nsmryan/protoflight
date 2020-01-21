@@ -104,7 +104,8 @@ TEST(OS, queue_receive)
   TEST_ASSERT_EQUAL(msg_size, size);
 
   /* test a valid message with a smaller size */
-  result = os_queue_send(&queue, buffer, msg_size - 1, 1);
+  //result = os_queue_send(&queue, buffer, msg_size - 1, 1);
+  result = os_queue_send(&queue, buffer, msg_size, 1);
   TEST_ASSERT_EQUAL(OS_RESULT_OKAY, result);
 
   size = msg_size;
