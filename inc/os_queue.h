@@ -9,18 +9,42 @@
 #ifndef __OS_QUEUE_H__
 #define __OS_QUEUE_H__
 
-#include "mqueue.h"
+#include "stdint.h"
 
 #include "os_definitions.h"
 
 
 /**
- * This type is for queues with the FSW. It is a type of an
- * implementation dependant type, and is only used through pointers
- * in this abstraction layer. This allows it to either point to
- * queue data, or to a handle passed to OS queue functions.
+ * This definition gives the maximum number of queues that can
+ * be allocated.
  */
+// NOTE consider moving this to a os_config.h header.
+#define OS_QUEUE_MAX_QUEUES 100
+
+
+/**
+ * This definition is the underlying data definition for queues.
+ */
+#if defined(OS_QUEUE_PTHREAD)
+#include "pthread.h"
+
+typedef struct OS_Queue
+{
+  pthread_mutex_t mutex;
+  pthread_cond_t write_condition;
+  pthread_cond_t read_condition;
+
+  uint8_t *buffer;
+  uint32_t num_msgs;
+  uint32_t msg_size_bytes;
+  uint32_t read_offset;
+  uint32_t write_offset;
+} OS_Queue;
+#else
+#include "mqueue.h"
+
 typedef mqd_t OS_Queue;
+#endif
 
 
 /**

@@ -40,9 +40,16 @@
  */
 #define OS_TIMEOUT_NO_WAIT (0)
 
+/**
+ * This definition is for an invalid handle. By requiring that 0 is an invalid
+ * handle, an uninitialized handle can be set to 0 and checked for validity
+ * against this definition.
+ */
+#define OS_HANDLE_INVALID (0)
+
 
 /**
- * A OS timeout is used for indicating whether to block
+ * An OS timeout is used for indicating whether to block
  * on a semaphore/queue/etc, and if so for how long
  */
 typedef int OS_Timeout;
@@ -52,7 +59,7 @@ typedef int OS_Timeout;
  * These can either indicate succses OS_RESULT_OKAY, or provide
  * an error code indicating the cause of the error.
  */
-typedef enum
+typedef enum OS_RESULT_ENUM
 {
 	OS_RESULT_INVALID            = 0, /*<< Invalid result */
 	OS_RESULT_OKAY               = 1, /*<< Success */

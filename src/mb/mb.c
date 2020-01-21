@@ -38,44 +38,7 @@ MB_RESULT_ENUM mb_send(MSG_Header *message, OS_Timeout timeout)
 
   gvMB_state.status.messages_received++;
 
-  if (message != NULL)
-  {
-    // the message size is the size of the data section (the length field)
-    // plus the size of the header itself.
-    uint32_t msg_size = message->length + sizeof(MSG_Header);
-
-    MSG_PACKETTYPE_ENUM packet_type =
-      (MSG_PACKETTYPE_ENUM)message->packet_type;
-
-    for (uint16_t pipe_index = 0;
-         pipe_index < gvMB_state.packets[packet_type].num_pipes;
-         pipe_index++)
-    {
-      OS_Queue queue = gvMB_state.packets[packet_type].pipes[pipe_index];
-
-      OS_RESULT_ENUM os_result =
-        os_queue_send(&queue,
-                      (uint8_t*)message,
-                      msg_size,
-                      timeout);
-
-      if (os_result == OS_RESULT_OKAY)
-      {
-        em_event(FSW_MODULEID_MB,
-                 MB_EVENT_MESSAGE_NOT_SENT,
-                 __LINE__,
-                 (uint32_t)packet_type,
-                 (uint32_t)pipe_index,
-                 (uint32_t)queue,
-                 0, 0);
-      }
-      else
-      {
-        gvMB_state.status.message_errors++;
-      }
-    }
-  }
-  else
+  if (message == NULL)
   {
     result = MB_RESULT_NULL_POINTER;
     gvMB_state.status.message_errors++;
@@ -85,6 +48,40 @@ MB_RESULT_ENUM mb_send(MSG_Header *message, OS_Timeout timeout)
              __LINE__,
              0, 0, 0, 0, 0);
 
+  }
+
+  if (result == MB_RESULT_OKAY)
+  {
+    // the message size is the size of the data section (the length field)
+    // plus the size of the header itself.
+    uint32_t msg_size = message->length + sizeof(MSG_Header);
+
+    MSG_PACKETTYPE_ENUM packet_type =
+      (MSG_PACKETTYPE_ENUM)message->packet_type;
+
+    for (uint16_t pipe_index = 0;
+         pipe_index < gvMB_state.packets[packet_type].num_queues;
+         pipe_index++)
+    {
+      uint32_t pipe_index = gvMB_state.packets[packet_type].queues[pipe_index];
+      OS_RESULT_ENUM os_result =
+        os_queue_send(&gvMB_state.pipes[pipe_index],
+                      (uint8_t*)message,
+                      msg_size,
+                      timeout);
+
+      if (os_result != OS_RESULT_OKAY)
+      {
+        em_event(FSW_MODULEID_MB,
+                 MB_EVENT_MESSAGE_NOT_SENT,
+                 __LINE__,
+                 (uint32_t)packet_type,
+                 (uint32_t)pipe_index,
+                 0, 0, 0);
+
+        gvMB_state.status.message_errors++;
+      }
+    }
   }
 
   return result;
@@ -112,42 +109,49 @@ MB_RESULT_ENUM mb_receive(MB_Pipe pipe_id,
 
   if (result == MB_RESULT_OKAY)
   {
-    os_queue_receive(&gvMB_state.pipes[pipe_id], (uint8_t*)message, msg_size, timeout);
+    OS_RESULT_ENUM os_result =
+      os_queue_receive(&gvMB_state.pipes[pipe_id],
+                       (uint8_t*)message,
+                       msg_size,
+                       timeout);
+
+    if (os_result != OS_RESULT_OKAY)
+    {
+      result = MB_RESULT_PIPE_READ_ERROR;
+    }
   }
 
   return result;
 }
 
-MB_RESULT_ENUM mb_create_pipe(MB_Pipe *pipe, uint16_t msg_size_bytes, uint16_t num_msgs)
+MB_RESULT_ENUM mb_create_pipe(MB_Pipe *pipe,
+                              uint32_t msg_size_bytes,
+                              uint32_t num_msgs)
 {
     MB_RESULT_ENUM result = MB_RESULT_OKAY;
 
-    if (pipe != NULL)
+    if (pipe == NULL)
     {
-      if (gvMB_state.num_pipes < MB_MAX_NUM_PIPES)
-      {
-        OS_Queue queue_id;
+      result = MB_RESULT_NULL_POINTER;
+    }
 
-        OS_RESULT_ENUM os_result =
-          os_queue_create(&queue_id, msg_size_bytes, num_msgs);
-
-        if (os_result == OS_RESULT_OKAY)
-        {
-          gvMB_state.pipes[gvMB_state.num_pipes] = queue_id;
-        }
-        else
-        {
-          result = MB_RESULT_PIPE_CREATE_FAILED;
-        }
-      }
-      else
+    if (result == MB_RESULT_OKAY)
+    {
+      if (gvMB_state.num_pipes >= MB_MAX_NUM_PIPES)
       {
         result = MB_RESULT_MAX_PIPES_REACHED;
       }
     }
-    else
+
+    if (result == MB_RESULT_OKAY)
     {
-      result = MB_RESULT_NULL_POINTER;
+      uint32_t next_pipe = gvMB_state.num_pipes;
+
+      OS_RESULT_ENUM os_result =
+        os_queue_create(&gvMB_state.pipes[next_pipe],
+                        msg_size_bytes,
+                        num_msgs);
+
     }
 
     if (result == MB_RESULT_OKAY)
@@ -160,29 +164,32 @@ MB_RESULT_ENUM mb_create_pipe(MB_Pipe *pipe, uint16_t msg_size_bytes, uint16_t n
     return result;
 }
 
-MB_RESULT_ENUM mb_register_packet(MB_Pipe *pipe, MSG_PACKETTYPE_ENUM packet_type)
+MB_RESULT_ENUM mb_register_packet(MB_Pipe pipe, MSG_PACKETTYPE_ENUM packet_type)
 {
   MB_RESULT_ENUM result = MB_RESULT_OKAY;
 
-  if (pipe == NULL)
+  uint32_t next_queue = 0;
+
+  if (pipe > gvMB_state.num_pipes)
   {
-    result = MB_RESULT_NULL_POINTER;
+    result = MB_RESULT_INVALID_PIPE;
   }
 
   if (result == MB_RESULT_OKAY)
   {
-    if ((*pipe < gvMB_state.num_pipes) && (packet_type < MSG_PACKETTYPE_NUM_TYPES))
-    {
-      uint16_t pipe_index = gvMB_state.packets[packet_type].num_pipes;
+    next_queue = gvMB_state.packets[packet_type].num_queues;
 
-      gvMB_state.packets[packet_type].pipes[pipe_index] = *pipe;
-
-      gvMB_state.packets[packet_type].num_pipes++;
-    }
-    else
+    if (next_queue >= MB_MAX_PIPES_PER_PACKET)
     {
-      result = MB_RESULT_INVALID_ARGUMENTS;
+      result = MB_RESULT_MAX_PIPES_REACHED;
     }
+  }
+
+  if (result == MB_RESULT_OKAY)
+  {
+    gvMB_state.packets[packet_type].queues[next_queue] = pipe;
+
+    gvMB_state.packets[packet_type].num_queues++;
   }
 
   return result;

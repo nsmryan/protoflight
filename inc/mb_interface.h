@@ -65,8 +65,8 @@ MB_RESULT_ENUM mb_receive(MB_Pipe pipeId,
                           OS_Timeout timeout);
 
 /**
- * @brief This function creates a new message pipe, returning a handle to the pipe
- * to be used later for receiving.
+ * @brief This function creates a pipe. A pipe can have packet types registered,
+ * and a call to mb_send will send the packet to all registered pipes.
  *
  * @param[out] pipe - a pointer to a message pipe handle, which will be filled out with
  *               a new message pipe handle.
@@ -77,8 +77,8 @@ MB_RESULT_ENUM mb_receive(MB_Pipe pipeId,
  *         source of the error.
  */
 MB_RESULT_ENUM mb_create_pipe(MB_Pipe *pipe,
-                              uint16_t msg_size_bytes,
-                              uint16_t num_msgs);
+                              uint32_t msg_size_bytes,
+                              uint32_t num_msgs);
 
 /**
  * @brief This function registers a message to receive on a pipe. Messages
@@ -91,7 +91,7 @@ MB_RESULT_ENUM mb_create_pipe(MB_Pipe *pipe,
  * @return Either success (MB_RESULT_OKAY), or an error code indicating the
  *         source of the error.
  */
-MB_RESULT_ENUM mb_register_packet(MB_Pipe *pipe, MSG_PACKETTYPE_ENUM packet_type);
+MB_RESULT_ENUM mb_register_packet(MB_Pipe pipe, MSG_PACKETTYPE_ENUM packet_type);
 
 /**
  * @brief mb_get_status

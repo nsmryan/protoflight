@@ -23,7 +23,7 @@
  * indicating the success (TBL_RESULT_OKAY) of a function,
  * or providing an error code describing the cause of the error.
  */
-typedef enum
+typedef enum TBL_RESULT_ENUM
 {
 	TBL_RESULT_INVALID          = 0, /*<< Invalid result value */
 	TBL_RESULT_OKAY             = 1, /*<< Successful result */
@@ -36,7 +36,7 @@ typedef enum
  * This enum enumerates the tables within the flight software.
  * Each table is identified with a unique number within this enum.
  */
-typedef enum
+typedef enum TBL_TABLE_ID_ENUM
 {
 	TBL_TABLE_ID_INVALID = 0,
 	TBL_TABLE_ID_NUM_TABLES
@@ -47,7 +47,7 @@ typedef enum
  * These can be either stored in persistent memory, or
  * stored in RAM.
  */
-typedef enum
+typedef enum TBL_LOCATION_ENUM
 {
 	TBL_LOCATION_INVALID  = 0, /* Invalid location value */
 	TBL_LOCATION_STORED   = 1, /* Stored in persistent memory */
@@ -58,7 +58,7 @@ typedef enum
 /**
  * This struct provides the status of the Table module.
  */
-typedef struct
+typedef struct TBL_Status
 {
 	uint16_t tables_read_ram;
 	uint16_t tables_read_stored;
@@ -71,7 +71,7 @@ typedef struct
  * This struct contains the definition of a table used when
  * saving or loading tables.
  */
-typedef struct
+typedef struct TBL_TableDefinition
 {
 	char *name;
 	uint32_t size;       /*<< The size of the table in bytes */
@@ -81,7 +81,7 @@ typedef struct
 /**
  * This struct is the state for the Table module.
  */
-typedef struct
+typedef struct TBL_State
 {
 	TBL_TableDefinition definitions[TBL_TABLE_ID_NUM_TABLES];
 	TBL_Status status;

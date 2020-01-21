@@ -107,8 +107,8 @@ OS_RESULT_ENUM os_sem_take(OS_Sem *sem, OS_Timeout timeout)
     struct timespec timeout_spec;
 
     int nanoseconds = timeout * OS_CONFIG_CLOCK_TICK_NANOSECONDS;
-    timeout_spec.tv_sec = nanoseconds % OS_NANOSECONDS_PER_SECOND;
-    timeout_spec.tv_nsec = nanoseconds / OS_NANOSECONDS_PER_SECOND;;
+    timeout_spec.tv_sec = nanoseconds / OS_NANOSECONDS_PER_SECOND;
+    timeout_spec.tv_nsec = nanoseconds % OS_NANOSECONDS_PER_SECOND;;
 
     int ret_code =
       pthread_cond_timedwait(&sem->cond, &sem->mutex, &timeout_spec);

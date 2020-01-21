@@ -30,7 +30,7 @@
  * It is used to indicate a successful result (TLM_RESULT_OKAY)
  * or provides and error code indicating the cause of an error.
  */
-typedef enum
+typedef enum TLM_RESULT_ENUM
 {
   TLM_RESULT_INVALID = 0, /*<< Invalid result */
   TLM_RESULT_OKAY    = 1, /*<< Success */
@@ -40,7 +40,7 @@ typedef enum
 /**
  * This struct is the status structure for the Telemetry module.
  */
-typedef struct
+typedef struct TLM_Status
 {
   uint32_t telemetry_sent;
   uint32_t telemetry_errors;
@@ -49,7 +49,7 @@ typedef struct
 /**
  * This struct is the state struct of the Telemetry module.
  */
-typedef struct
+typedef struct TLM_State
 {
   TLM_Status status;
 } TLM_State;
@@ -58,7 +58,7 @@ typedef struct
  * This struct contains the status structure of all modules in the flight
  * software.
  */
-typedef struct
+typedef struct TLM_Telemetry
 {
   TLM_Status tlm;
   MB_Status  mb;
@@ -71,7 +71,7 @@ typedef struct
  * This struct is the telemetry packet containing status of all
  * modules in the flight software.
  */
-typedef struct
+typedef struct TLM_TelemetryMessage
 {
   MSG_Header header;
   TLM_Telemetry telemetry;

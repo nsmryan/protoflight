@@ -8,7 +8,7 @@ MAKEFLAGS += --warn-undefined-variables
 MAKEFLAGS += --no-builtin-rules
 
 
-CFLAGS=-Iinc
+CFLAGS+=-Iinc
 LDFLAGS=-lrt -pthread -L/usr/lib/x86_64-linux-gnu/
 BUILDDIR=build
 

@@ -85,8 +85,8 @@ OS_RESULT_ENUM os_mutex_take(OS_Mutex *mutex, OS_Timeout timeout)
   if (result == OS_RESULT_OKAY)
   {
     int nanoseconds = timeout * OS_CONFIG_CLOCK_TICK_NANOSECONDS;
-    timeout_spec.tv_sec = nanoseconds % OS_NANOSECONDS_PER_SECOND;
-    timeout_spec.tv_nsec = nanoseconds / OS_NANOSECONDS_PER_SECOND;;
+    timeout_spec.tv_sec = nanoseconds / OS_NANOSECONDS_PER_SECOND;
+    timeout_spec.tv_nsec = nanoseconds % OS_NANOSECONDS_PER_SECOND;;
 
     int ret_code = pthread_mutex_timedlock(mutex, &timeout_spec);
     if (ret_code != 0)

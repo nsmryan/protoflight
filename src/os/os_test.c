@@ -25,7 +25,7 @@ TEST_TEAR_DOWN(OS)
 {
 }
 
-TEST(OS, mutex_create)
+TEST(OS, queue_create)
 {
   OS_RESULT_ENUM result = OS_RESULT_OKAY;
 
@@ -44,9 +44,47 @@ TEST(OS, mutex_create)
   TEST_ASSERT_EQUAL(OS_RESULT_OKAY, result);
 }
 
+TEST(OS, queue_send)
+{
+  OS_RESULT_ENUM result = OS_RESULT_OKAY;
+
+  OS_Queue queue;
+
+  uint32_t msg_size = 8;
+  uint32_t num_msgs = 3;
+
+  uint8_t buffer[8];
+
+  result = os_queue_create(&queue, num_msgs, msg_size);
+  TEST_ASSERT_EQUAL(OS_RESULT_OKAY, result);
+
+  result = os_queue_send(&queue, NULL, msg_size, 1);
+  TEST_ASSERT_EQUAL(OS_RESULT_NULL_POINTER, result);
+
+  result = os_queue_send(&queue, buffer, msg_size, 1);
+  TEST_ASSERT_EQUAL(OS_RESULT_OKAY, result);
+
+  result = os_queue_send(&queue, buffer, msg_size, 1);
+  TEST_ASSERT_EQUAL(OS_RESULT_OKAY, result);
+
+  result = os_queue_send(&queue, buffer, msg_size, 1);
+  TEST_ASSERT_EQUAL(OS_RESULT_OKAY, result);
+
+  result = os_queue_send(&queue, buffer, msg_size, 1);
+  TEST_ASSERT_EQUAL(OS_RESULT_OKAY, result);
+
+  result = os_queue_send(&queue, buffer, msg_size, 1);
+  TEST_ASSERT_EQUAL(OS_RESULT_OKAY, result);
+
+  result = os_queue_send(&queue, buffer, msg_size, 1);
+  TEST_ASSERT_EQUAL(OS_RESULT_TIMEOUT, result);
+}
+
+
 TEST_GROUP_RUNNER(OS)
 {
-  RUN_TEST_CASE(OS, mutex_create);
+  RUN_TEST_CASE(OS, queue_create);
+  RUN_TEST_CASE(OS, queue_send);
 }
 
 #endif

@@ -26,7 +26,7 @@
  * It either indicates a success (EM_RESULT_OKAY) or provides an
  * error code indicating the cause of the problem.
  */
-typedef enum
+typedef enum EM_RESULT_ENUM
 {
   EM_RESULT_INVALID           = 0,
   EM_RESULT_OKAY              = 1,
@@ -38,7 +38,7 @@ typedef enum
 /**
  * The event struct is the packet definition of for event messages.
  */
-typedef struct
+typedef struct EM_Event
 {
   MSG_Header header;
   FSW_MODULEID_ENUM module;
@@ -50,7 +50,7 @@ typedef struct
 /**
  * This struct is the Event Message module's status structure.
  */
-typedef struct
+typedef struct EM_Status
 {
   uint32_t messages_received;
   uint32_t messages_sent;
@@ -60,7 +60,7 @@ typedef struct
 /**
  * This struct provides the Event Message module's state
  */
-typedef struct
+typedef struct EM_State
 {
   EM_Status status;
 } EM_State;

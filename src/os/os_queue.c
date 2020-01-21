@@ -6,6 +6,8 @@
  * This file contains the implementation of the OS abstraction for message
  * queues.
  */
+#if !defined(OS_QUEUE_PTHREAD)
+
 #include "stdint.h"
 #include "stdio.h"
 
@@ -15,8 +17,6 @@
 #include "sys/stat.h"
 
 #include "mqueue.h"
-
-#include "pthread.h"
 
 #include "os_definitions.h"
 #include "os_queue.h"
@@ -88,7 +88,6 @@ OS_RESULT_ENUM os_queue_create(OS_Queue *queue,
     mqd_t temp_queue =
       mq_open(queue_name, O_RDWR | O_CREAT, OS_QUEUE_MODE, &attr);
 
-    printf("errno = %d\n", errno);
     if (temp_queue != ((mqd_t) -1))
     {
       *queue = temp_queue;
@@ -121,8 +120,8 @@ OS_RESULT_ENUM os_queue_send(OS_Queue *queue,
   if (result == OS_RESULT_OKAY)
   {
     int nanoseconds = timeout * OS_CONFIG_CLOCK_TICK_NANOSECONDS;
-    timeout_spec.tv_sec = nanoseconds % OS_NANOSECONDS_PER_SECOND;
-    timeout_spec.tv_nsec = nanoseconds / OS_NANOSECONDS_PER_SECOND;;
+    timeout_spec.tv_sec = nanoseconds / OS_NANOSECONDS_PER_SECOND;
+    timeout_spec.tv_nsec = nanoseconds % OS_NANOSECONDS_PER_SECOND;;
 
     msg_size =
       mq_timedsend(*queue, buffer, buffer_size_bytes, OS_QUEUE_PRIORITY, &timeout_spec);
@@ -166,8 +165,8 @@ OS_RESULT_ENUM os_queue_receive(OS_Queue *queue,
   if (result == OS_RESULT_OKAY)
   {
     int nanoseconds = timeout * OS_CONFIG_CLOCK_TICK_NANOSECONDS;
-    timeout_spec.tv_sec = nanoseconds % OS_NANOSECONDS_PER_SECOND;
-    timeout_spec.tv_nsec = nanoseconds / OS_NANOSECONDS_PER_SECOND;;
+    timeout_spec.tv_sec = nanoseconds / OS_NANOSECONDS_PER_SECOND;
+    timeout_spec.tv_nsec = nanoseconds % OS_NANOSECONDS_PER_SECOND;;
 
     int priority = OS_QUEUE_PRIORITY;
     msg_size =
@@ -197,3 +196,4 @@ OS_RESULT_ENUM os_queue_receive(OS_Queue *queue,
   return result;
 }
 
+#endif /* !defined(OS_QUEUE_PTHREAD) */

@@ -153,8 +153,8 @@ OS_RESULT_ENUM os_timer_start(OS_Timer *timer, OS_TIMER_FUNC *callback, OS_Timeo
     struct timespec timeout_spec;
 
     int nanoseconds = timeout * OS_CONFIG_CLOCK_TICK_NANOSECONDS;
-    timeout_spec.tv_sec = nanoseconds % OS_NANOSECONDS_PER_SECOND;
-    timeout_spec.tv_nsec = nanoseconds / OS_NANOSECONDS_PER_SECOND;;
+    timeout_spec.tv_sec = nanoseconds / OS_NANOSECONDS_PER_SECOND;
+    timeout_spec.tv_nsec = nanoseconds % OS_NANOSECONDS_PER_SECOND;;
 
     ret_code =
       timer_settime(timer,

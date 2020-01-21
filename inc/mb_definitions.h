@@ -43,7 +43,7 @@ typedef uint32_t MB_Pipe;
  * It either indicates a successful return from a function, or it indicates the
  * reason for an error.
  */
-typedef enum
+typedef enum MB_RESULT_ENUM
 {
     MB_RESULT_INVALID            = 0, /*<< Invalid result */
     MB_RESULT_OKAY               = 1, /*<< Successful */
@@ -51,6 +51,8 @@ typedef enum
     MB_RESULT_MAX_PIPES_REACHED  = 3, /*<< Attempted to register a new pipe, but the maximum number of pipes was reached */
     MB_RESULT_PIPE_CREATE_FAILED = 4, /*<< Pipe creation failed */
     MB_RESULT_INVALID_ARGUMENTS  = 5, /*<< Invalid arguments provided to function */
+    MB_RESULT_PIPE_READ_ERROR    = 6, /*<< Error reading from a pipe */
+    MB_RESULT_INVALID_PIPE       = 7, /*<< Pipe was an invalid value */
     MB_RESULT_NUM_RESULTS             /*<< Number of result values for MB */
 } MB_RESULT_ENUM;
 
@@ -59,16 +61,16 @@ typedef enum
  * when registering packet types with a pipe, and when sending
  * a message on a pipe.
  */
-typedef struct
+typedef struct MB_PacketData
 {
-  uint16_t num_pipes;
-  OS_Queue pipes[MB_MAX_PIPES_PER_PACKET];
-} MB_PipeData;
+  uint32_t num_queues;
+  uint32_t queues[MB_MAX_PIPES_PER_PACKET];
+} MB_PacketData;
 
 /**
  * This structure is the status of the Message Bus module.
  */
-typedef struct
+typedef struct MB_Status
 {
 	uint32_t messages_received;
 	uint32_t message_errors;
@@ -77,12 +79,12 @@ typedef struct
 /**
  * This struct is the state of the Message Bus module.
  */
-typedef struct
+typedef struct MB_State
 {
-    OS_Queue pipes[MB_MAX_NUM_PIPES];
-    MB_PipeData packets[MSG_PACKETTYPE_NUM_TYPES];
-    uint16_t num_pipes;
-    MB_Status status;
+  uint32_t num_pipes;
+  OS_Queue pipes[MB_MAX_NUM_PIPES];
+  MB_PacketData packets[MSG_PACKETTYPE_NUM_TYPES];
+  MB_Status status;
 } MB_State;
 
 #endif // ndef __MB_DEFINITIONS_H__ */
