@@ -106,6 +106,9 @@ OS_RESULT_ENUM os_sem_take(OS_Sem *sem, OS_Timeout timeout)
   {
     struct timespec timeout_spec;
 
+    // TODO get clock_gettime(CLOCK_REALTIME, and use absolute time
+    // for condition variables.
+
     int nanoseconds = timeout * OS_CONFIG_CLOCK_TICK_NANOSECONDS;
     timeout_spec.tv_sec = nanoseconds / OS_NANOSECONDS_PER_SECOND;
     timeout_spec.tv_nsec = nanoseconds % OS_NANOSECONDS_PER_SECOND;;
