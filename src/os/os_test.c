@@ -68,15 +68,6 @@ TEST(OS, queue_send)
   TEST_ASSERT_EQUAL(OS_RESULT_OKAY, result);
 
   result = os_queue_send(&queue, buffer, msg_size, 1);
-  TEST_ASSERT_EQUAL(OS_RESULT_OKAY, result);
-
-  result = os_queue_send(&queue, buffer, msg_size, 1);
-  TEST_ASSERT_EQUAL(OS_RESULT_OKAY, result);
-
-  result = os_queue_send(&queue, buffer, msg_size, 1);
-  TEST_ASSERT_EQUAL(OS_RESULT_OKAY, result);
-
-  result = os_queue_send(&queue, buffer, msg_size, 1);
   TEST_ASSERT_EQUAL(OS_RESULT_TIMEOUT, result);
 }
 
