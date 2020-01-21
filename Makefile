@@ -8,12 +8,19 @@ MAKEFLAGS += --warn-undefined-variables
 MAKEFLAGS += --no-builtin-rules
 
 
-CFLAGS+=-Iinc
+CFLAGS+=-Ios/$(OS)/inc/ -Ifsw/inc/
 LDFLAGS=-lrt -pthread -L/usr/lib/x86_64-linux-gnu/
 BUILDDIR=build
 
+# options are posix
+OS ?= posix
 
-build/test: $(shell find src test -type f -name *.c)
+OS_PTHREAD ?= 0
+ifeq ($(OS_PTHREAD), 1)
+	CFLAGS+=-DOS_QUEUE_PTHREAD
+endif
+
+build/test: $(shell find os/$(OS)/src test -type f -name *.c)
 	mkdir -p $(BUILDDIR)
 	$(CC) -static -o $@ $^ -Itest/unity/ -DUNITY_FIXTURE_NO_EXTRAS -DFSW_UNIT_TEST $(CFLAGS) ${LDFLAGS} 
 
