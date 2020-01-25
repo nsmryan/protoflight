@@ -160,6 +160,9 @@ OS_RESULT_ENUM os_queue_create(OS_Queue *queue,
     queue->msg_size_bytes = msg_size_bytes;
     queue->buffer = buffer;
     queue->msg_sizes = msg_sizes;
+    queue->read_offset = 0;
+    queue->write_offset = 0;
+    queue->num_queued = 0;
   }
 
   return result;
@@ -235,16 +238,13 @@ OS_RESULT_ENUM os_queue_send(OS_Queue *queue,
   // check if there is data in the queue
   if (result == OS_RESULT_OKAY)
   {
-    uint32_t next_write = (queue->write_offset + 1) % queue->num_msgs;
-    // if write pointer is just behind read, the queue is full
-    if (queue->read_offset == next_write)
+    // if write pointer is at read pointer, the queue is full
+    if (queue->num_queued == queue->num_msgs)
     {
       // wait for the queue to empty by at least one
       ret_code = pthread_cond_timedwait(&queue->write_condition, &queue->mutex, &timeout_spec);
       if (ret_code != 0)
       {
-        mutex_taken = false;
-
         // note that we check the return code instead of errno, per the pthread_cond_timedwait manual page
         if (ret_code == ETIMEDOUT)
         {
@@ -254,6 +254,9 @@ OS_RESULT_ENUM os_queue_send(OS_Queue *queue,
         {
           result = OS_RESULT_ERROR;
         }
+
+        mutex_taken = false;
+
       }
     }
   }
@@ -270,6 +273,8 @@ OS_RESULT_ENUM os_queue_send(OS_Queue *queue,
 
     // update the write pointer
     queue->write_offset = (queue->write_offset + 1) % queue->num_msgs;
+
+    queue->num_queued++;
 
     // if any threads where blocking waiting for a message to arrive, signal them.
     // This also has the effect of releasing the queue mutex.
@@ -341,12 +346,20 @@ OS_RESULT_ENUM os_queue_receive(OS_Queue *queue,
   if (result == OS_RESULT_OKAY)
   {
     // check if the queue is empty
-    if (queue->read_offset == queue->write_offset)
+    if (queue->num_queued == 0)
     {
       ret_code = pthread_cond_timedwait(&queue->read_condition, &queue->mutex, &timeout_spec);
-      if (ret_code < 0)
+      if (ret_code != 0)
       {
-        result = OS_RESULT_ERROR;
+        // note that we check the return code instead of errno, per the pthread_cond_timedwait manual page
+        if (ret_code == ETIMEDOUT)
+        {
+          result = OS_RESULT_TIMEOUT;
+        }
+        else
+        {
+          result = OS_RESULT_ERROR;
+        }
 
         // pthread_cond_timedwait gives the mutex, and if it fails we do not have it.
         mutex_taken = false;
@@ -368,6 +381,8 @@ OS_RESULT_ENUM os_queue_receive(OS_Queue *queue,
 
     // update the read pointer
     queue->read_offset = (queue->read_offset + 1) % queue->num_msgs;
+
+    queue->num_queued--;
 
     // signal to any threads waiting for space to open up that a message was read.
     // This has the effect of releasing the queue mutex as well.

@@ -14,7 +14,7 @@
 
 static void Test_RunAllTests(void)
 {
-  RUN_TEST_GROUP(OS)
+  RUN_TEST_GROUP(OS_QUEUE)
 }
 
 int main(int argc, char const *argv[])

@@ -41,6 +41,8 @@ typedef struct OS_Queue
   uint32_t msg_size_bytes;
   uint32_t read_offset;
   uint32_t write_offset;
+
+  uint32_t num_queued;
 } OS_Queue;
 #else
 #include "mqueue.h"
