@@ -8,6 +8,8 @@
  */
 #if defined(FSW_UNIT_TEST)
 
+#include "errno.h"
+
 #include "unity.h"
 #include "unity_fixture.h"
 
@@ -25,6 +27,7 @@ TEST_TEAR_DOWN(OS)
 {
 }
 
+// test basic queue creation, including valid and invalid parameters
 TEST(OS, queue_create)
 {
   OS_RESULT_ENUM result = OS_RESULT_OKAY;
@@ -44,6 +47,8 @@ TEST(OS, queue_create)
   TEST_ASSERT_EQUAL(OS_RESULT_OKAY, result);
 }
 
+// test basic queue sending, including valid and invalid parameters
+// and attempting to send to a full queue.
 TEST(OS, queue_send)
 {
   OS_RESULT_ENUM result = OS_RESULT_OKAY;
@@ -71,6 +76,8 @@ TEST(OS, queue_send)
   TEST_ASSERT_EQUAL(OS_RESULT_TIMEOUT, result);
 }
 
+// test basic queue receiving, including valid and invalid parameters
+// and attempting to receive from an empty queue
 TEST(OS, queue_receive)
 {
   OS_RESULT_ENUM result = OS_RESULT_OKAY;

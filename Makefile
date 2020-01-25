@@ -22,7 +22,7 @@ endif
 
 build/test: $(shell find os/$(OS)/src test -type f -name *.c)
 	mkdir -p $(BUILDDIR)
-	$(CC) -static -o $@ $^ -Itest/unity/ -DUNITY_FIXTURE_NO_EXTRAS -DFSW_UNIT_TEST $(CFLAGS) ${LDFLAGS} 
+	$(CC) -static -g -o $@ $^ -Itest/unity/ -DUNITY_FIXTURE_NO_EXTRAS -DFSW_UNIT_TEST $(CFLAGS) ${LDFLAGS} 
 
 clean:
 	rm -rf $(BUILDDIR)

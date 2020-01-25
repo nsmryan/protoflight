@@ -195,6 +195,7 @@ OS_RESULT_ENUM os_queue_send(OS_Queue *queue,
     }
   }
 
+  // get the current time, using the clock configured for this mutex
   if (result == OS_RESULT_OKAY)
   {
     ret_code = clock_gettime(CLOCK_MONOTONIC, &timeout_spec);
@@ -204,6 +205,7 @@ OS_RESULT_ENUM os_queue_send(OS_Queue *queue,
     }
   }
 
+  // wait on the queue mutex
   if (result == OS_RESULT_OKAY)
   {
     // NOTE does rollover need to be checked here?
@@ -230,6 +232,7 @@ OS_RESULT_ENUM os_queue_send(OS_Queue *queue,
     }
   }
 
+  // check if there is data in the queue
   if (result == OS_RESULT_OKAY)
   {
     uint32_t next_write = (queue->write_offset + 1) % queue->num_msgs;
@@ -241,6 +244,7 @@ OS_RESULT_ENUM os_queue_send(OS_Queue *queue,
       if (ret_code != 0)
       {
         mutex_taken = false;
+
         // note that we check the return code instead of errno, per the pthread_cond_timedwait manual page
         if (ret_code == ETIMEDOUT)
         {
@@ -274,8 +278,6 @@ OS_RESULT_ENUM os_queue_send(OS_Queue *queue,
     {
       result = OS_RESULT_ERROR;
     }
-
-    mutex_taken = false;
   }
 
   if (mutex_taken)
@@ -345,6 +347,8 @@ OS_RESULT_ENUM os_queue_receive(OS_Queue *queue,
       if (ret_code < 0)
       {
         result = OS_RESULT_ERROR;
+
+        // pthread_cond_timedwait gives the mutex, and if it fails we do not have it.
         mutex_taken = false;
       }
     }
@@ -371,7 +375,6 @@ OS_RESULT_ENUM os_queue_receive(OS_Queue *queue,
     if (ret_code < 0)
     {
       result = OS_RESULT_ERROR;
-      mutex_taken = false;
     }
   }
 
