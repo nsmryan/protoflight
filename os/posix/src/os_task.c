@@ -7,9 +7,11 @@
  * by the fsw.
  */
 #include "stdlib.h"
+#include "stdint.h"
 #include "string.h"
 
 #include "signal.h"
+#include "errno.h"
 #include "unistd.h"
 #include "sys/types.h"
 
@@ -195,6 +197,8 @@ OS_TASK_STATUS_ENUM os_task_status(OS_Task *task)
 
 OS_TASK_STATUS_ENUM os_task_delay(OS_Timeout timeout)
 {
+    OS_RESULT_ENUM result = OS_RESULT_OKAY;
+
     struct timespec timespec_timeout;
 
     uint64_t timeout_ns = timeout * OS_CONFIG_CLOCK_TICK_NANOSECONDS;
@@ -203,15 +207,23 @@ OS_TASK_STATUS_ENUM os_task_delay(OS_Timeout timeout)
     timespec_timeout.tv_nsec = timeout_ns % 1000000000;
 
 
-    int result = 0;
+    int ret_code = 0;
 
     // drain down the timeout, even if the sleep is interrupted by signal
-    result = nanosleep(&timespec_timeout, &timespec_timeout);
-    while ((result == -1) && (errno == EINT))
+    ret_code = nanosleep(&timespec_timeout, &timespec_timeout);
+    while ((ret_code == -1) && (errno == EINTR))
     {
-        result = nanosleep(&timespec_timeout, &timespec_timeout);
+        ret_code = nanosleep(&timespec_timeout, &timespec_timeout);
+    }
+
+    if (ret_code == -1)
+    {
+        result = OS_RESULT_ERROR;
     }
     // TODO consider
     // clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &timeout_spec, NULL);
     // in a loop until returns 0.
+
+
+    return result;
 }

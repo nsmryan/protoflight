@@ -44,11 +44,12 @@ void os_timer_function(int signal)
         bool restart_requested =
             timer->callback(timer->argument);
 
-        if (restart_requested)
+        // the POSIX timer is configured to reset automatically (to
+        // avoid issues with delays in signal handling), so we have
+        // to stop it on request by the callback
+        if (!restart_requested)
         {
-          os_timer_start(timer,
-                         timer->callback,
-                         timer->timeout);
+          os_timer_stop(timer);
         }
       }
     }
@@ -168,10 +169,12 @@ OS_RESULT_ENUM os_timer_start(OS_Timer *timer,
 
     int nanoseconds = timeout * OS_CONFIG_CLOCK_TICK_NANOSECONDS;
     timeout_spec.tv_sec = nanoseconds / OS_NANOSECONDS_PER_SECOND;
-    timeout_spec.tv_nsec = nanoseconds % OS_NANOSECONDS_PER_SECOND;;
+    timeout_spec.tv_nsec = nanoseconds % OS_NANOSECONDS_PER_SECOND;
 
+    // configure the timer to repeat at the given interval,
+    // rearming on trigger
     struct itimerspec timer_spec;
-    timer_spec.it_value = timeout_spec;
+    memset(&timer_spec.it_value, 0, sizeof(timer_spec.it_value));
     timer_spec.it_interval = timeout_spec;
 
     ret_code =
@@ -205,13 +208,13 @@ OS_RESULT_ENUM os_timer_stop(OS_Timer *timer)
 
   if (result == OS_RESULT_OKAY)
   {
-      struct timespec disarm;
+      struct itimerspec disarm;
       memset(&disarm, 0, sizeof(disarm));
 
       // timeout of 0 disarms the timer
       int ret_code = timer_settime(timer->timer,
                                    0,
-                                   disarm,
+                                   &disarm,
                                    NULL);
 
       if (ret_code == -1)

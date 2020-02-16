@@ -52,12 +52,17 @@ OS_RESULT_ENUM os_timer_create(OS_Timer *timer);
  *
  * @param[in] timer - a pointer to a timer.
  * @param[in] function - the callback function to run when the timer executes.
+ * @param[in] argument - the argument that will be passed to the 'callback' function
+ *                       when the timer triggers.
  * @param[in] timeout - the time that will elapsed before the timer executes.
  *
  * @return A value of type OS_TASK_STATUS_ENUM, indicating whether the timer
  * was started successfully.
  */
-OS_RESULT_ENUM os_timer_start(OS_Timer *timer, OS_TIMER_FUNC function, OS_Timeout timeout);
+OS_RESULT_ENUM os_timer_start(OS_Timer *timer,
+                              OS_TIMER_FUNC *callback,
+                              void *argument,
+                              OS_Timeout timeout);
 
 /**
  * This function starts a timer, given a pointer to a timer

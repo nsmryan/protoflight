@@ -11,11 +11,21 @@
 
 #include "time.h" // included because of CLOCKS_PER_SEC
 
+
+/**
+ * This definition is the clock rate used by the abstraction layer.
+ * It may match the underlying OS system clock, or may be a course time,
+ * but it should not be finer as this will result in inaccurate timeouts.
+ *
+ * It is set to 1000 by default.
+ */
+#define OS_CONFIG_CLOCK_RATE 1000
+
 /**
  * This definition is the number of nanoseconds per system
  * clock tick
  */
-#define OS_CONFIG_CLOCK_TICK_NANOSECONDS (OS_NANOSECONDS_PER_SECOND / CLOCKS_PER_SEC)
+#define OS_CONFIG_CLOCK_TICK_NANOSECONDS (OS_NANOSECONDS_PER_SECOND / OS_CONFIG_CLOCK_RATE)
 
 /**
  * This definition is the maximum length of an OS resource name, such as

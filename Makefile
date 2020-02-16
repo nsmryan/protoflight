@@ -8,7 +8,7 @@ MAKEFLAGS += --warn-undefined-variables
 MAKEFLAGS += --no-builtin-rules
 
 
-CFLAGS+=-Ios/$(OS)/inc/ -Ifsw/inc/
+CFLAGS+=-Ios/$(OS)/inc/ -Ifsw/inc/ -Wall -Werror -O0 -g3
 LDFLAGS=-lrt -pthread -L/usr/lib/x86_64-linux-gnu/
 BUILDDIR=build
 

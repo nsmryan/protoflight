@@ -212,7 +212,7 @@ OS_RESULT_ENUM os_queue_send(OS_Queue *queue,
   if (result == OS_RESULT_OKAY)
   {
     // NOTE does rollover need to be checked here?
-    int nanoseconds = timeout * OS_CONFIG_CLOCK_TICK_NANOSECONDS;
+    uint64_t nanoseconds = timeout * OS_CONFIG_CLOCK_TICK_NANOSECONDS;
     timeout_spec.tv_sec += nanoseconds / OS_NANOSECONDS_PER_SECOND;
     timeout_spec.tv_nsec += nanoseconds % OS_NANOSECONDS_PER_SECOND;
 
@@ -328,8 +328,8 @@ OS_RESULT_ENUM os_queue_receive(OS_Queue *queue,
   if (result == OS_RESULT_OKAY)
   {
     int nanoseconds = timeout * OS_CONFIG_CLOCK_TICK_NANOSECONDS;
-    timeout_spec.tv_sec = nanoseconds % OS_NANOSECONDS_PER_SECOND;
-    timeout_spec.tv_nsec = nanoseconds / OS_NANOSECONDS_PER_SECOND;;
+    timeout_spec.tv_sec = nanoseconds / OS_NANOSECONDS_PER_SECOND;
+    timeout_spec.tv_nsec = nanoseconds % OS_NANOSECONDS_PER_SECOND;;
 
     ret_code = pthread_mutex_timedlock(&queue->mutex, &timeout_spec);
 

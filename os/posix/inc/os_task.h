@@ -75,6 +75,6 @@ OS_TASK_STATUS_ENUM os_task_status(OS_Task *task);
  * @param timeout - the number of system clock ticks to delay.
  *
  */
-void os_task_delay(OS_Timeout timer);
+OS_TASK_STATUS_ENUM os_task_delay(OS_Timeout timeout);
 
 #endif // ndef __OS_TASK_H__ */

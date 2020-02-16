@@ -120,6 +120,7 @@ OS_RESULT_ENUM os_sem_give(OS_Sem *sem)
 OS_RESULT_ENUM os_sem_take(OS_Sem *sem, OS_Timeout timeout)
 {
   OS_RESULT_ENUM result = OS_RESULT_OKAY;
+  int ret_code = 0;
 
   if (sem == NULL)
   {
@@ -136,13 +137,22 @@ OS_RESULT_ENUM os_sem_take(OS_Sem *sem, OS_Timeout timeout)
     timeout_spec.tv_sec += nanoseconds / OS_NANOSECONDS_PER_SECOND;
     timeout_spec.tv_nsec += nanoseconds % OS_NANOSECONDS_PER_SECOND;;
 
-    int ret_code =
+    ret_code =
       pthread_cond_timedwait(&sem->cond, &sem->mutex, &timeout_spec);
 
     if (ret_code < 0)
     {
       result = OS_RESULT_ERROR;
     }
+  }
+
+  if (result == OS_RESULT_OKAY)
+  {
+      ret_code = pthread_mutex_unlock(&sem->mutex);
+      if (ret_code < 0)
+      {
+          result = OS_RESULT_ERROR;
+      }
   }
 
   return result;

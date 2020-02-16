@@ -8,6 +8,7 @@
  */
 #if defined(FSW_UNIT_TEST)
 
+#include "stdbool.h"
 #include "string.h"
 
 #include "errno.h"
@@ -17,6 +18,9 @@
 
 #include "os_definitions.h"
 #include "os_queue.h"
+#include "os_timer.h"
+#include "os_time.h"
+#include "os_task.h"
 
 
 const uint32_t OS_QUEUE_TEST_MSG_SIZE = 8;
@@ -25,7 +29,7 @@ const uint32_t OS_QUEUE_TEST_NUM_MSGS = 3;
 OS_Queue gvOS_testQueue;
 OS_Timer gvOS_testTimer;
 
-bool gvOS_timerFlag = false;
+volatile bool gvOS_timerFlag = false;
 
 
 /* Test Queues */
@@ -44,7 +48,6 @@ TEST_TEAR_DOWN(OS_QUEUE)
 TEST(OS_QUEUE, queue_create_null)
 {
   OS_RESULT_ENUM result = OS_RESULT_OKAY;
-  OS_Queue queue;
 
   result = os_queue_create(NULL, 10, 10);
   TEST_ASSERT_EQUAL(OS_RESULT_NULL_POINTER, result);
@@ -132,8 +135,6 @@ TEST(OS_QUEUE, queue_send_full)
 TEST(OS_QUEUE, queue_receive_null_queue)
 {
   OS_RESULT_ENUM result = OS_RESULT_OKAY;
-
-  OS_Queue queue;
 
   uint32_t size = OS_QUEUE_TEST_MSG_SIZE;
 
@@ -225,6 +226,8 @@ TEST_GROUP(OS_TIMER);
 TEST_SETUP(OS_TIMER)
 {
   os_timer_create(&gvOS_testTimer);
+
+  gvOS_timerFlag = false;
 }
 
 TEST_TEAR_DOWN(OS_TIMER)
@@ -236,7 +239,7 @@ TEST(OS_TIMER, timer_create)
 {
   OS_RESULT_ENUM result = OS_RESULT_OKAY;
 
-  result = os_timer_create(&gvOS_testTest);
+  result = os_timer_create(&gvOS_testTimer);
   TEST_ASSERT_EQUAL(OS_RESULT_OKAY, result);
 
   result = os_timer_create(NULL);
@@ -247,6 +250,7 @@ TEST(OS_TIMER, timer_create)
 bool os_timer_test_single(void *argument)
 {
     bool *flag = (bool*)argument;
+
     *flag = !(*flag);
 
     return false;
@@ -266,10 +270,12 @@ TEST(OS_TIMER, timer_start_null)
 
   OS_Timeout timeout = 10;
 
-  OS_RESULT_ENUM result =
+  result =
       os_timer_start(NULL,
-                     os_timer_test_function,
-                     timeout,
+                     os_timer_test_single,
+                     (void*)&gvOS_timerFlag,
+                     timeout);
+
   TEST_ASSERT_EQUAL(OS_RESULT_NULL_POINTER, result);
 }
 
@@ -280,16 +286,16 @@ TEST(OS_TIMER, timer_start_single)
   OS_Timeout timeout = 10;
 
   // test a single timer call
-  OS_RESULT_ENUM result =
+  result =
       os_timer_start(&gvOS_testTimer,
-                     os_timer_test_function,
-                     &gvOS_timerFlag,
+                     os_timer_test_single,
+                     (void*)&gvOS_timerFlag,
                      timeout);
   TEST_ASSERT_EQUAL(OS_RESULT_OKAY, result);
 
   TEST_ASSERT_EQUAL(false, gvOS_timerFlag);
 
-  os_task_delay(timeout);
+  os_task_delay(timeout + 1);
   TEST_ASSERT_EQUAL(true, gvOS_timerFlag);
 
   // ensure remains false- does not retrigger
@@ -298,7 +304,6 @@ TEST(OS_TIMER, timer_start_single)
 
   os_task_delay(timeout);
   TEST_ASSERT_EQUAL(true, gvOS_timerFlag);
-
 }
 
 TEST(OS_TIMER, timer_start_reset)
@@ -308,10 +313,10 @@ TEST(OS_TIMER, timer_start_reset)
   OS_Timeout timeout = 10;
 
   // test a single timer call
-  OS_RESULT_ENUM result =
+  result =
       os_timer_start(&gvOS_testTimer,
-                     os_timer_test_function,
-                     &gvOS_timerFlag,
+                     os_timer_test_reset,
+                     (void*)&gvOS_timerFlag,
                      timeout);
   TEST_ASSERT_EQUAL(OS_RESULT_OKAY, result);
 
@@ -326,8 +331,7 @@ TEST(OS_TIMER, timer_start_reset)
   os_task_delay(timeout);
   TEST_ASSERT_EQUAL(true, gvOS_timerFlag);
 
-  OS_RESULT_ENUM result =
-      os_timer_stop(&gvOS_testTimer);
+  result = os_timer_stop(&gvOS_testTimer);
 
   // does not retrigger
   os_task_delay(timeout);
@@ -335,6 +339,38 @@ TEST(OS_TIMER, timer_start_reset)
 
   os_task_delay(timeout);
   TEST_ASSERT_EQUAL(true, gvOS_timerFlag);
+}
+
+TEST_GROUP(OS_TIME);
+
+TEST_SETUP(OS_TIME)
+{
+}
+
+TEST_TEAR_DOWN(OS_TIME)
+{
+}
+
+TEST(OS_TIME, time_not_zero)
+{
+    double time_double = os_timestamp_double();
+
+    TEST_ASSERT_TRUE(time_double != 0.0);
+
+    OS_TimeStamp timestamp = os_timestamp();
+
+    TEST_ASSERT_TRUE((timestamp.seconds != 0) || (timestamp.nanoseconds != 0));
+}
+
+TEST(OS_TIME, time_delay)
+{
+    double before = os_timestamp_double();
+
+    os_task_delay(1);
+
+    double after = os_timestamp_double();
+
+    TEST_ASSERT_TRUE(after > before);
 }
 
 TEST_GROUP_RUNNER(OS_QUEUE)
@@ -352,7 +388,16 @@ TEST_GROUP_RUNNER(OS_QUEUE)
   RUN_TEST_CASE(OS_QUEUE, queue_receive_small);
   RUN_TEST_CASE(OS_QUEUE, queue_receive_empty);
   RUN_TEST_CASE(OS_QUEUE, queue_receive_okay);
+}
 
+TEST_GROUP_RUNNER(OS_TIME)
+{
+    RUN_TEST_CASE(OS_TIME, time_delay);
+    RUN_TEST_CASE(OS_TIME, time_not_zero);
+}
+
+TEST_GROUP_RUNNER(OS_TIMER)
+{
   RUN_TEST_CASE(OS_TIMER, timer_create);
   RUN_TEST_CASE(OS_TIMER, timer_start_null);
   RUN_TEST_CASE(OS_TIMER, timer_start_single);
