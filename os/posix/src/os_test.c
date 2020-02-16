@@ -29,7 +29,8 @@ const uint32_t OS_QUEUE_TEST_NUM_MSGS = 3;
 OS_Queue gvOS_testQueue;
 OS_Timer gvOS_testTimer;
 
-volatile bool gvOS_timerFlag = false;
+bool gvOS_timerFlag = false;
+bool gvOS_taskFlag = false;
 
 
 /* Test Queues */
@@ -380,6 +381,58 @@ TEST(OS_TIME, time_delay)
     TEST_ASSERT_TRUE((after - before) < error);
 }
 
+void os_test_task(void *argument)
+{
+    bool *taskFlag = (bool*)argument;
+
+    *taskFlag = !(*taskFlag);
+}
+
+TEST_GROUP(OS_TASK);
+
+TEST_SETUP(OS_TASK)
+{
+    gvOS_taskFlag = false;
+}
+
+TEST_TEAR_DOWN(OS_TASK)
+{
+}
+
+TEST(OS_TASK, task_spawn_invalid)
+{
+    OS_RESULT_ENUM result = OS_RESULT_OKAY;
+    OS_Task task;
+
+    int argument = 0;
+
+    result = os_task_spawn(NULL, os_test_task, &argument, 10, 1024 * 10);
+    TEST_ASSERT_EQUAL(OS_RESULT_NULL_POINTER, result);
+
+    result = os_task_spawn(&task, NULL, &argument, 10, 1024 * 10);
+    TEST_ASSERT_EQUAL(OS_RESULT_NULL_POINTER, result);
+
+    result = os_task_spawn(&task, os_test_task, &argument, 10, 0);
+    TEST_ASSERT_EQUAL(OS_RESULT_INVALID_ARGUMENTS, result);
+
+    // NOTE assumes that no OS has 1025 priorities
+    result = os_task_spawn(&task, os_test_task, &argument, 1025, 0);
+    TEST_ASSERT_EQUAL(OS_RESULT_INVALID_ARGUMENTS, result);
+}
+
+TEST(OS_TASK, task_spawn)
+{
+    OS_RESULT_ENUM result = OS_RESULT_OKAY;
+    OS_Task task;
+
+    result = os_task_spawn(&task, os_test_task, &gvOS_taskFlag, 40, 1024 * 10);
+    TEST_ASSERT_EQUAL(OS_RESULT_OKAY, result);
+
+    os_task_delay(1);
+
+    TEST_ASSERT_EQUAL(true, gvOS_taskFlag);
+}
+
 TEST_GROUP_RUNNER(OS_QUEUE)
 {
   RUN_TEST_CASE(OS_QUEUE, queue_create_null);
@@ -409,6 +462,11 @@ TEST_GROUP_RUNNER(OS_TIMER)
   RUN_TEST_CASE(OS_TIMER, timer_start_null);
   RUN_TEST_CASE(OS_TIMER, timer_start_single);
   RUN_TEST_CASE(OS_TIMER, timer_start_reset);
+}
+
+TEST_GROUP_RUNNER(OS_TASK)
+{
+    RUN_TEST_CASE(OS_TASK, task_spawn);
 }
 
 #endif

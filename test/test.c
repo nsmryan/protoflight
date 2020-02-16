@@ -17,6 +17,7 @@ static void Test_RunAllTests(void)
   RUN_TEST_GROUP(OS_QUEUE)
   RUN_TEST_GROUP(OS_TIME)
   RUN_TEST_GROUP(OS_TIMER)
+  RUN_TEST_GROUP(OS_TASK)
 }
 
 int main(int argc, char const *argv[])

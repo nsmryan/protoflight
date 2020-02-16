@@ -35,7 +35,7 @@ void *os_task_pthread_function(void *argument)
   if ((task_arg != NULL) && (task_arg->function != NULL))
   {
     // the task argument is not checked for NULL- a task that does not use
-    // the argument may have NULL passed int.
+    // the argument may have NULL passed in.
     task_arg->function(task_arg->argument);
   }
 
