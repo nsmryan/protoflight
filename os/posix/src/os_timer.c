@@ -6,10 +6,10 @@
  * This file contains the implementation for the timer abstraction 
  * used by the fsw.
  */
-#include "unistd.h"
-
+#include "stdint.h"
 #include "string.h"
 
+#include "unistd.h"
 #include <signal.h>
 #include <errno.h>
 #include "sys/types.h"
@@ -88,7 +88,7 @@ OS_RESULT_ENUM os_timer_create(OS_Timer *timer)
     events.sigev_notify = SIGEV_SIGNAL;
     events.sigev_signo = gvOS_currentSignal + SIGRTMIN;
 
-    ret_code = timer_create(CLOCK_REALTIME, &events, &timer->timer);
+    ret_code = timer_create(CLOCK_MONOTONIC, &events, &timer->timer);
     if (ret_code == 0)
     {
       timer->signal = gvOS_currentSignal + SIGRTMIN;
@@ -167,15 +167,15 @@ OS_RESULT_ENUM os_timer_start(OS_Timer *timer,
     // start the timer, setting it off after a given timeout period
     struct timespec timeout_spec;
 
-    int nanoseconds = timeout * OS_CONFIG_CLOCK_TICK_NANOSECONDS;
+    uint64_t nanoseconds = timeout * OS_CONFIG_CLOCK_TICK_NANOSECONDS;
     timeout_spec.tv_sec = nanoseconds / OS_NANOSECONDS_PER_SECOND;
     timeout_spec.tv_nsec = nanoseconds % OS_NANOSECONDS_PER_SECOND;
 
     // configure the timer to repeat at the given interval,
     // rearming on trigger
     struct itimerspec timer_spec;
-    memset(&timer_spec.it_value, 0, sizeof(timer_spec.it_value));
     timer_spec.it_interval = timeout_spec;
+    timer_spec.it_value = timeout_spec;
 
     ret_code =
       timer_settime(timer->timer,

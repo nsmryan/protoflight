@@ -325,7 +325,7 @@ TEST(OS_TIMER, timer_start_reset)
   os_task_delay(timeout);
   TEST_ASSERT_EQUAL(true, gvOS_timerFlag);
 
-  os_task_delay(timeout);
+  os_task_delay(timeout + 1);
   TEST_ASSERT_EQUAL(false, gvOS_timerFlag);
 
   os_task_delay(timeout);
@@ -371,6 +371,13 @@ TEST(OS_TIME, time_delay)
     double after = os_timestamp_double();
 
     TEST_ASSERT_TRUE(after > before);
+
+    // 2.2 comes from the fact that a delay can be up to 2 clock ticks,
+    // plus some extra given that the timesout may not wakeup exactly
+    // on time.
+    double error = 2.2 * (1.0 / ((double)OS_CONFIG_CLOCK_RATE));
+
+    TEST_ASSERT_TRUE((after - before) < error);
 }
 
 TEST_GROUP_RUNNER(OS_QUEUE)
