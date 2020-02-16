@@ -23,8 +23,12 @@ const uint32_t OS_QUEUE_TEST_MSG_SIZE = 8;
 const uint32_t OS_QUEUE_TEST_NUM_MSGS = 3;
 
 OS_Queue gvOS_testQueue;
+OS_Timer gvOS_testTimer;
+
+bool gvOS_timerFlag = false;
 
 
+/* Test Queues */
 TEST_GROUP(OS_QUEUE);
 
 TEST_SETUP(OS_QUEUE)
@@ -215,9 +219,123 @@ TEST(OS_QUEUE, queue_receive_empty)
 }
 
 
-//TEST(OS, timer_create)
-//OS_RESULT_ENUM os_timer_create(OS_Timer *watchdog);
-//OS_RESULT_ENUM os_timer_start(OS_Timer *timer, OS_TIMER_FUNC function, OS_Timeout timeout);
+/* Test Timers */
+TEST_GROUP(OS_TIMER);
+
+TEST_SETUP(OS_TIMER)
+{
+  os_timer_create(&gvOS_testTimer);
+}
+
+TEST_TEAR_DOWN(OS_TIMER)
+{
+  memset(&gvOS_testTimer, 0, sizeof(OS_Timer));
+}
+
+TEST(OS_TIMER, timer_create)
+{
+  OS_RESULT_ENUM result = OS_RESULT_OKAY;
+
+  result = os_timer_create(&gvOS_testTest);
+  TEST_ASSERT_EQUAL(OS_RESULT_OKAY, result);
+
+  result = os_timer_create(NULL);
+  TEST_ASSERT_EQUAL(OS_RESULT_NULL_POINTER, result);
+}
+
+
+bool os_timer_test_single(void *argument)
+{
+    bool *flag = (bool*)argument;
+    *flag = !(*flag);
+
+    return false;
+}
+
+bool os_timer_test_reset(void *argument)
+{
+    bool *flag = (bool*)argument;
+    *flag = !(*flag);
+
+    return true;
+}
+
+TEST(OS_TIMER, timer_start_null)
+{
+  OS_RESULT_ENUM result = OS_RESULT_OKAY;
+
+  OS_Timeout timeout = 10;
+
+  OS_RESULT_ENUM result =
+      os_timer_start(NULL,
+                     os_timer_test_function,
+                     timeout,
+  TEST_ASSERT_EQUAL(OS_RESULT_NULL_POINTER, result);
+}
+
+TEST(OS_TIMER, timer_start_single)
+{
+  OS_RESULT_ENUM result = OS_RESULT_OKAY;
+
+  OS_Timeout timeout = 10;
+
+  // test a single timer call
+  OS_RESULT_ENUM result =
+      os_timer_start(&gvOS_testTimer,
+                     os_timer_test_function,
+                     &gvOS_timerFlag,
+                     timeout);
+  TEST_ASSERT_EQUAL(OS_RESULT_OKAY, result);
+
+  TEST_ASSERT_EQUAL(false, gvOS_timerFlag);
+
+  os_task_delay(timeout);
+  TEST_ASSERT_EQUAL(true, gvOS_timerFlag);
+
+  // ensure remains false- does not retrigger
+  os_task_delay(timeout);
+  TEST_ASSERT_EQUAL(true, gvOS_timerFlag);
+
+  os_task_delay(timeout);
+  TEST_ASSERT_EQUAL(true, gvOS_timerFlag);
+
+}
+
+TEST(OS_TIMER, timer_start_reset)
+{
+  OS_RESULT_ENUM result = OS_RESULT_OKAY;
+
+  OS_Timeout timeout = 10;
+
+  // test a single timer call
+  OS_RESULT_ENUM result =
+      os_timer_start(&gvOS_testTimer,
+                     os_timer_test_function,
+                     &gvOS_timerFlag,
+                     timeout);
+  TEST_ASSERT_EQUAL(OS_RESULT_OKAY, result);
+
+  TEST_ASSERT_EQUAL(false, gvOS_timerFlag);
+
+  os_task_delay(timeout);
+  TEST_ASSERT_EQUAL(true, gvOS_timerFlag);
+
+  os_task_delay(timeout);
+  TEST_ASSERT_EQUAL(false, gvOS_timerFlag);
+
+  os_task_delay(timeout);
+  TEST_ASSERT_EQUAL(true, gvOS_timerFlag);
+
+  OS_RESULT_ENUM result =
+      os_timer_stop(&gvOS_testTimer);
+
+  // does not retrigger
+  os_task_delay(timeout);
+  TEST_ASSERT_EQUAL(true, gvOS_timerFlag);
+
+  os_task_delay(timeout);
+  TEST_ASSERT_EQUAL(true, gvOS_timerFlag);
+}
 
 TEST_GROUP_RUNNER(OS_QUEUE)
 {
@@ -234,6 +352,11 @@ TEST_GROUP_RUNNER(OS_QUEUE)
   RUN_TEST_CASE(OS_QUEUE, queue_receive_small);
   RUN_TEST_CASE(OS_QUEUE, queue_receive_empty);
   RUN_TEST_CASE(OS_QUEUE, queue_receive_okay);
+
+  RUN_TEST_CASE(OS_TIMER, timer_create);
+  RUN_TEST_CASE(OS_TIMER, timer_start_null);
+  RUN_TEST_CASE(OS_TIMER, timer_start_single);
+  RUN_TEST_CASE(OS_TIMER, timer_start_reset);
 }
 
 #endif

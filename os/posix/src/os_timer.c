@@ -41,7 +41,15 @@ void os_timer_function(int signal)
     {
       if (timer->callback != NULL)
       {
-        timer->callback();
+        bool restart_requested =
+            timer->callback(timer->argument);
+
+        if (restart_requested)
+        {
+          os_timer_start(timer,
+                         timer->callback,
+                         timer->timeout);
+        }
       }
     }
   }
@@ -100,7 +108,10 @@ OS_RESULT_ENUM os_timer_create(OS_Timer *timer)
   return result;
 }
 
-OS_RESULT_ENUM os_timer_start(OS_Timer *timer, OS_TIMER_FUNC *callback, OS_Timeout timeout)
+OS_RESULT_ENUM os_timer_start(OS_Timer *timer,
+                              OS_TIMER_FUNC *callback,
+                              void *argument,
+                              OS_Timeout timeout)
 {
   OS_RESULT_ENUM result = OS_RESULT_OKAY;
 
@@ -117,6 +128,9 @@ OS_RESULT_ENUM os_timer_start(OS_Timer *timer, OS_TIMER_FUNC *callback, OS_Timeo
 
   if (result == OS_RESULT_OKAY)
   {
+    timer->argument = argument;
+    timer->timeout = timeout;
+
     // the result of memset is not checked, as it returns the destination pointer
     // which cannot be NULL.
     memset((void*)&signal_action, 0, sizeof(signal_action));
@@ -156,10 +170,14 @@ OS_RESULT_ENUM os_timer_start(OS_Timer *timer, OS_TIMER_FUNC *callback, OS_Timeo
     timeout_spec.tv_sec = nanoseconds / OS_NANOSECONDS_PER_SECOND;
     timeout_spec.tv_nsec = nanoseconds % OS_NANOSECONDS_PER_SECOND;;
 
+    struct itimerspec timer_spec;
+    timer_spec.it_value = timeout_spec;
+    timer_spec.it_interval = timeout_spec;
+
     ret_code =
-      timer_settime(timer,
+      timer_settime(timer->timer,
                     0,
-                    (const struct itimerspec * restrict)&timeout_spec,
+                    &timer_spec,
                     NULL);
 
     if (ret_code < 0)
@@ -176,3 +194,31 @@ OS_RESULT_ENUM os_timer_start(OS_Timer *timer, OS_TIMER_FUNC *callback, OS_Timeo
   return result;
 }
 
+OS_RESULT_ENUM os_timer_stop(OS_Timer *timer)
+{
+  OS_RESULT_ENUM result = OS_RESULT_OKAY;
+
+  if (timer == NULL)
+  {
+      result = OS_RESULT_NULL_POINTER;
+  }
+
+  if (result == OS_RESULT_OKAY)
+  {
+      struct timespec disarm;
+      memset(&disarm, 0, sizeof(disarm));
+
+      // timeout of 0 disarms the timer
+      int ret_code = timer_settime(timer->timer,
+                                   0,
+                                   disarm,
+                                   NULL);
+
+      if (ret_code == -1)
+      {
+          result = OS_RESULT_ERROR;
+      }
+  }
+
+  return result;
+}

@@ -188,7 +188,30 @@ OS_TASK_STATUS_ENUM os_task_status(OS_Task *task)
   OS_TASK_STATUS_ENUM task_status = OS_TASK_STATUS_OKAY;
 
   // NOTE no implementation appears possible for POSIX?
+  // may need to track tasks, such as setitng a flag on exit
 
   return task_status;
 }
 
+OS_TASK_STATUS_ENUM os_task_delay(OS_Timeout timeout)
+{
+    struct timespec timespec_timeout;
+
+    uint64_t timeout_ns = timeout * OS_CONFIG_CLOCK_TICK_NANOSECONDS;
+
+    timespec_timeout.tv_sec  = timeout_ns / 1000000000;
+    timespec_timeout.tv_nsec = timeout_ns % 1000000000;
+
+
+    int result = 0;
+
+    // drain down the timeout, even if the sleep is interrupted by signal
+    result = nanosleep(&timespec_timeout, &timespec_timeout);
+    while ((result == -1) && (errno == EINT))
+    {
+        result = nanosleep(&timespec_timeout, &timespec_timeout);
+    }
+    // TODO consider
+    // clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &timeout_spec, NULL);
+    // in a loop until returns 0.
+}

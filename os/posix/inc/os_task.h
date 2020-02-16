@@ -66,4 +66,15 @@ OS_RESULT_ENUM os_task_spawn(OS_Task *task,
  */
 OS_TASK_STATUS_ENUM os_task_status(OS_Task *task);
 
+/**
+ * @brief os_task_delay
+ *
+ * This function delays (sleeps) a task for a given number of system
+ * clock ticks.
+ *
+ * @param timeout - the number of system clock ticks to delay.
+ *
+ */
+void os_task_delay(OS_Timeout timer);
+
 #endif // ndef __OS_TASK_H__ */
