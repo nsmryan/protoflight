@@ -21,13 +21,15 @@
 #include "os_timer.h"
 #include "os_time.h"
 #include "os_task.h"
+#include "os_mutex.h"
 
 
 const uint32_t OS_QUEUE_TEST_MSG_SIZE = 8;
 const uint32_t OS_QUEUE_TEST_NUM_MSGS = 3;
 
-OS_Queue gvOS_testQueue;
-OS_Timer gvOS_testTimer;
+OS_Queue gvOS_test_queue;
+OS_Timer gvOS_test_timer;
+OS_Mutex gvOS_test_mutex;
 
 bool gvOS_timerFlag = false;
 bool gvOS_taskFlag = false;
@@ -38,12 +40,12 @@ TEST_GROUP(OS_QUEUE);
 
 TEST_SETUP(OS_QUEUE)
 {
-  os_queue_create(&gvOS_testQueue, OS_QUEUE_TEST_NUM_MSGS, OS_QUEUE_TEST_MSG_SIZE);
+  os_queue_create(&gvOS_test_queue, OS_QUEUE_TEST_NUM_MSGS, OS_QUEUE_TEST_MSG_SIZE);
 }
 
 TEST_TEAR_DOWN(OS_QUEUE)
 {
-  memset(&gvOS_testQueue, 0, sizeof(OS_Queue));
+  memset(&gvOS_test_queue, 0, sizeof(OS_Queue));
 }
 
 TEST(OS_QUEUE, queue_create_null)
@@ -97,7 +99,7 @@ TEST(OS_QUEUE, queue_send_null_buffer)
 
   uint32_t msg_size = 8;
 
-  result = os_queue_send(&gvOS_testQueue, NULL, msg_size, 1);
+  result = os_queue_send(&gvOS_test_queue, NULL, msg_size, 1);
   TEST_ASSERT_EQUAL(OS_RESULT_NULL_POINTER, result);
 }
 
@@ -107,10 +109,10 @@ TEST(OS_QUEUE, queue_send_okay)
 
   uint8_t buffer[8];
 
-  result = os_queue_send(&gvOS_testQueue, buffer, OS_QUEUE_TEST_MSG_SIZE, 1);
+  result = os_queue_send(&gvOS_test_queue, buffer, OS_QUEUE_TEST_MSG_SIZE, 1);
   TEST_ASSERT_EQUAL(OS_RESULT_OKAY, result);
 
-  result = os_queue_send(&gvOS_testQueue, buffer, OS_QUEUE_TEST_MSG_SIZE, 1);
+  result = os_queue_send(&gvOS_test_queue, buffer, OS_QUEUE_TEST_MSG_SIZE, 1);
   TEST_ASSERT_EQUAL(OS_RESULT_OKAY, result);
 }
 
@@ -120,16 +122,16 @@ TEST(OS_QUEUE, queue_send_full)
 
   uint8_t buffer[8];
 
-  result = os_queue_send(&gvOS_testQueue, buffer, OS_QUEUE_TEST_MSG_SIZE, 1);
+  result = os_queue_send(&gvOS_test_queue, buffer, OS_QUEUE_TEST_MSG_SIZE, 1);
   TEST_ASSERT_EQUAL(OS_RESULT_OKAY, result);
 
-  result = os_queue_send(&gvOS_testQueue, buffer, OS_QUEUE_TEST_MSG_SIZE, 1);
+  result = os_queue_send(&gvOS_test_queue, buffer, OS_QUEUE_TEST_MSG_SIZE, 1);
   TEST_ASSERT_EQUAL(OS_RESULT_OKAY, result);
 
-  result = os_queue_send(&gvOS_testQueue, buffer, OS_QUEUE_TEST_MSG_SIZE, 1);
+  result = os_queue_send(&gvOS_test_queue, buffer, OS_QUEUE_TEST_MSG_SIZE, 1);
   TEST_ASSERT_EQUAL(OS_RESULT_OKAY, result);
 
-  result = os_queue_send(&gvOS_testQueue, buffer, OS_QUEUE_TEST_MSG_SIZE, 1);
+  result = os_queue_send(&gvOS_test_queue, buffer, OS_QUEUE_TEST_MSG_SIZE, 1);
   TEST_ASSERT_EQUAL(OS_RESULT_TIMEOUT, result);
 }
 
@@ -153,7 +155,7 @@ TEST(OS_QUEUE, queue_receive_null_buffer)
   uint32_t size = OS_QUEUE_TEST_MSG_SIZE;
 
   // Test a NULL buffer
-  result = os_queue_receive(&gvOS_testQueue, NULL, &size, 1);
+  result = os_queue_receive(&gvOS_test_queue, NULL, &size, 1);
   TEST_ASSERT_EQUAL(OS_RESULT_NULL_POINTER, result);
 }
 
@@ -166,11 +168,11 @@ TEST(OS_QUEUE, queue_receive_okay)
   uint8_t buffer[8];
 
   /* test a valid message can be received */
-  result = os_queue_send(&gvOS_testQueue, buffer, OS_QUEUE_TEST_MSG_SIZE, 1);
+  result = os_queue_send(&gvOS_test_queue, buffer, OS_QUEUE_TEST_MSG_SIZE, 1);
   TEST_ASSERT_EQUAL(OS_RESULT_OKAY, result);
 
   size = OS_QUEUE_TEST_MSG_SIZE;
-  result = os_queue_receive(&gvOS_testQueue, buffer, &size, 1);
+  result = os_queue_receive(&gvOS_test_queue, buffer, &size, 1);
   TEST_ASSERT_EQUAL(OS_RESULT_OKAY, result);
   TEST_ASSERT_EQUAL(OS_QUEUE_TEST_MSG_SIZE, size);
 }
@@ -184,11 +186,11 @@ TEST(OS_QUEUE, queue_receive_small)
   uint8_t buffer[8];
 
   /* test a valid message with a smaller size */
-  result = os_queue_send(&gvOS_testQueue, buffer, size - 1, 1);
+  result = os_queue_send(&gvOS_test_queue, buffer, size - 1, 1);
   TEST_ASSERT_EQUAL(OS_RESULT_OKAY, result);
 
   size = OS_QUEUE_TEST_MSG_SIZE;
-  result = os_queue_receive(&gvOS_testQueue, buffer, &size, 1);
+  result = os_queue_receive(&gvOS_test_queue, buffer, &size, 1);
   TEST_ASSERT_EQUAL(OS_RESULT_OKAY, result);
   TEST_ASSERT_EQUAL(OS_QUEUE_TEST_MSG_SIZE - 1, size);
 }
@@ -203,19 +205,19 @@ TEST(OS_QUEUE, queue_receive_empty)
 
   /* receive from empty queue */
   size = OS_QUEUE_TEST_MSG_SIZE;
-  result = os_queue_receive(&gvOS_testQueue, buffer, &size, 1);
+  result = os_queue_receive(&gvOS_test_queue, buffer, &size, 1);
   TEST_ASSERT_EQUAL(OS_RESULT_TIMEOUT, result);
   TEST_ASSERT_EQUAL(OS_QUEUE_TEST_MSG_SIZE, size);
 
   // put in a message, read it out, and then test empty queue again
-  result = os_queue_send(&gvOS_testQueue, buffer, size - 1, 1);
+  result = os_queue_send(&gvOS_test_queue, buffer, size - 1, 1);
   TEST_ASSERT_EQUAL(OS_RESULT_OKAY, result);
 
-  result = os_queue_receive(&gvOS_testQueue, buffer, &size, 1);
+  result = os_queue_receive(&gvOS_test_queue, buffer, &size, 1);
   TEST_ASSERT_EQUAL(OS_RESULT_OKAY, result);
 
   size = OS_QUEUE_TEST_MSG_SIZE;
-  result = os_queue_receive(&gvOS_testQueue, buffer, &size, 1);
+  result = os_queue_receive(&gvOS_test_queue, buffer, &size, 1);
   TEST_ASSERT_EQUAL(OS_RESULT_TIMEOUT, result);
   TEST_ASSERT_EQUAL(OS_QUEUE_TEST_MSG_SIZE, size);
 }
@@ -226,21 +228,21 @@ TEST_GROUP(OS_TIMER);
 
 TEST_SETUP(OS_TIMER)
 {
-  os_timer_create(&gvOS_testTimer);
+  os_timer_create(&gvOS_test_timer);
 
   gvOS_timerFlag = false;
 }
 
 TEST_TEAR_DOWN(OS_TIMER)
 {
-  memset(&gvOS_testTimer, 0, sizeof(OS_Timer));
+  memset(&gvOS_test_timer, 0, sizeof(OS_Timer));
 }
 
 TEST(OS_TIMER, timer_create)
 {
   OS_RESULT_ENUM result = OS_RESULT_OKAY;
 
-  result = os_timer_create(&gvOS_testTimer);
+  result = os_timer_create(&gvOS_test_timer);
   TEST_ASSERT_EQUAL(OS_RESULT_OKAY, result);
 
   result = os_timer_create(NULL);
@@ -288,7 +290,7 @@ TEST(OS_TIMER, timer_start_single)
 
   // test a single timer call
   result =
-      os_timer_start(&gvOS_testTimer,
+      os_timer_start(&gvOS_test_timer,
                      os_timer_test_single,
                      (void*)&gvOS_timerFlag,
                      timeout);
@@ -296,7 +298,7 @@ TEST(OS_TIMER, timer_start_single)
 
   TEST_ASSERT_EQUAL(false, gvOS_timerFlag);
 
-  os_task_delay(timeout + 1);
+  os_task_delay(timeout + 2);
   TEST_ASSERT_EQUAL(true, gvOS_timerFlag);
 
   // ensure remains false- does not retrigger
@@ -315,7 +317,7 @@ TEST(OS_TIMER, timer_start_reset)
 
   // test a single timer call
   result =
-      os_timer_start(&gvOS_testTimer,
+      os_timer_start(&gvOS_test_timer,
                      os_timer_test_reset,
                      (void*)&gvOS_timerFlag,
                      timeout);
@@ -323,7 +325,7 @@ TEST(OS_TIMER, timer_start_reset)
 
   TEST_ASSERT_EQUAL(false, gvOS_timerFlag);
 
-  os_task_delay(timeout);
+  os_task_delay(timeout + 1);
   TEST_ASSERT_EQUAL(true, gvOS_timerFlag);
 
   os_task_delay(timeout + 1);
@@ -332,7 +334,7 @@ TEST(OS_TIMER, timer_start_reset)
   os_task_delay(timeout);
   TEST_ASSERT_EQUAL(true, gvOS_timerFlag);
 
-  result = os_timer_stop(&gvOS_testTimer);
+  result = os_timer_stop(&gvOS_test_timer);
 
   // does not retrigger
   os_task_delay(timeout);
@@ -373,12 +375,19 @@ TEST(OS_TIME, time_delay)
 
     TEST_ASSERT_TRUE(after > before);
 
-    // 2.2 comes from the fact that a delay can be up to 2 clock ticks,
-    // plus some extra given that the timesout may not wakeup exactly
+    // 2.5 comes from the fact that a delay can be up to 2 clock ticks,
+    // plus some extra given that the timeout may not wakeup exactly
     // on time.
-    double error = 2.2 * (1.0 / ((double)OS_CONFIG_CLOCK_RATE));
+    double error = 2.5 * (1.0 / ((double)OS_CONFIG_CLOCK_RATE));
 
-    TEST_ASSERT_TRUE((after - before) < error);
+    bool cond = (after - before) < error;
+
+    if (!cond)
+    {
+        printf("Time diff = %.9f\n", after - before);
+    }
+
+    TEST_ASSERT_TRUE(cond);
 }
 
 void os_test_task(void *argument)
@@ -433,6 +442,50 @@ TEST(OS_TASK, task_spawn)
     TEST_ASSERT_EQUAL(true, gvOS_taskFlag);
 }
 
+TEST_GROUP(OS_MUTEX);
+
+TEST_SETUP(OS_MUTEX)
+{
+    os_mutex_create(&gvOS_test_mutex);
+}
+
+TEST_TEAR_DOWN(OS_MUTEX)
+{
+}
+
+TEST(OS_MUTEX, mutex_invalid)
+{
+    OS_RESULT_ENUM result = OS_RESULT_OKAY;
+
+    result = os_mutex_create(NULL);
+    TEST_ASSERT_EQUAL(OS_RESULT_NULL_POINTER, result);
+
+    result = os_mutex_take(NULL, 10);
+    TEST_ASSERT_EQUAL(OS_RESULT_NULL_POINTER, result);
+
+    result = os_mutex_give(NULL);
+    TEST_ASSERT_EQUAL(OS_RESULT_NULL_POINTER, result);
+}
+
+TEST(OS_MUTEX, mutex_basics)
+{
+    OS_RESULT_ENUM result = OS_RESULT_OKAY;
+
+    // take and give a couple of times to make sure
+    // function at least act reasonably
+    result = os_mutex_take(&gvOS_test_mutex, 0);
+    TEST_ASSERT_EQUAL(OS_RESULT_OKAY, result);
+
+    result = os_mutex_give(&gvOS_test_mutex);
+    TEST_ASSERT_EQUAL(OS_RESULT_OKAY, result);
+
+    result = os_mutex_take(&gvOS_test_mutex, 0);
+    TEST_ASSERT_EQUAL(OS_RESULT_OKAY, result);
+
+    result = os_mutex_give(&gvOS_test_mutex);
+    TEST_ASSERT_EQUAL(OS_RESULT_OKAY, result);
+}
+
 TEST_GROUP_RUNNER(OS_QUEUE)
 {
   RUN_TEST_CASE(OS_QUEUE, queue_create_null);
@@ -466,7 +519,14 @@ TEST_GROUP_RUNNER(OS_TIMER)
 
 TEST_GROUP_RUNNER(OS_TASK)
 {
+    RUN_TEST_CASE(OS_TASK, task_spawn_invalid);
     RUN_TEST_CASE(OS_TASK, task_spawn);
+}
+
+TEST_GROUP_RUNNER(OS_MUTEX)
+{
+    RUN_TEST_CASE(OS_MUTEX, mutex_invalid);
+    RUN_TEST_CASE(OS_MUTEX, mutex_basics);
 }
 
 #endif
