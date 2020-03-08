@@ -19,6 +19,7 @@ static void Test_RunAllTests(void)
   RUN_TEST_GROUP(OS_TIMER)
   RUN_TEST_GROUP(OS_TASK)
   RUN_TEST_GROUP(OS_MUTEX)
+  RUN_TEST_GROUP(OS_SEM)
 }
 
 int main(int argc, char const *argv[])

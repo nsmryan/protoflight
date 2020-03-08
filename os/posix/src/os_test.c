@@ -22,6 +22,7 @@
 #include "os_time.h"
 #include "os_task.h"
 #include "os_mutex.h"
+#include "os_sem.h"
 
 
 const uint32_t OS_QUEUE_TEST_MSG_SIZE = 8;
@@ -30,6 +31,7 @@ const uint32_t OS_QUEUE_TEST_NUM_MSGS = 3;
 OS_Queue gvOS_test_queue;
 OS_Timer gvOS_test_timer;
 OS_Mutex gvOS_test_mutex;
+OS_Sem gvOS_test_sem;
 
 bool gvOS_timerFlag = false;
 bool gvOS_taskFlag = false;
@@ -235,6 +237,7 @@ TEST_SETUP(OS_TIMER)
 
 TEST_TEAR_DOWN(OS_TIMER)
 {
+  os_timer_stop(&gvOS_test_timer);
   memset(&gvOS_test_timer, 0, sizeof(OS_Timer));
 }
 
@@ -244,6 +247,7 @@ TEST(OS_TIMER, timer_create)
 
   result = os_timer_create(&gvOS_test_timer);
   TEST_ASSERT_EQUAL(OS_RESULT_OKAY, result);
+  os_timer_stop(&gvOS_test_timer);
 
   result = os_timer_create(NULL);
   TEST_ASSERT_EQUAL(OS_RESULT_NULL_POINTER, result);
@@ -307,6 +311,8 @@ TEST(OS_TIMER, timer_start_single)
 
   os_task_delay(timeout);
   TEST_ASSERT_EQUAL(true, gvOS_timerFlag);
+
+  os_timer_stop(&gvOS_test_timer);
 }
 
 TEST(OS_TIMER, timer_start_reset)
@@ -342,6 +348,8 @@ TEST(OS_TIMER, timer_start_reset)
 
   os_task_delay(timeout);
   TEST_ASSERT_EQUAL(true, gvOS_timerFlag);
+
+  os_timer_stop(&gvOS_test_timer);
 }
 
 TEST_GROUP(OS_TIME);
@@ -486,6 +494,72 @@ TEST(OS_MUTEX, mutex_basics)
     TEST_ASSERT_EQUAL(OS_RESULT_OKAY, result);
 }
 
+TEST_GROUP(OS_SEM);
+
+TEST_SETUP(OS_SEM)
+{
+  os_sem_create(&gvOS_test_sem);
+}
+
+TEST_TEAR_DOWN(OS_SEM)
+{
+}
+
+TEST(OS_SEM, sem_invalid)
+{
+    OS_RESULT_ENUM result = OS_RESULT_OKAY;
+
+    result = os_sem_create(NULL);
+    TEST_ASSERT_EQUAL(OS_RESULT_NULL_POINTER, result);
+
+    result = os_sem_take(NULL, 10);
+    TEST_ASSERT_EQUAL(OS_RESULT_NULL_POINTER, result);
+
+    result = os_sem_give(NULL);
+    TEST_ASSERT_EQUAL(OS_RESULT_NULL_POINTER, result);
+}
+
+TEST(OS_SEM, sem_basics)
+{
+    OS_RESULT_ENUM result = OS_RESULT_OKAY;
+
+    // take and give a couple of times to make sure
+    // function at least act reasonably
+    result = os_sem_take(&gvOS_test_sem, 0);
+    TEST_ASSERT_EQUAL(OS_RESULT_OKAY, result);
+
+    result = os_sem_give(&gvOS_test_sem);
+    TEST_ASSERT_EQUAL(OS_RESULT_OKAY, result);
+
+    result = os_sem_take(&gvOS_test_sem, 0);
+    TEST_ASSERT_EQUAL(OS_RESULT_OKAY, result);
+
+    result = os_sem_give(&gvOS_test_sem);
+    TEST_ASSERT_EQUAL(OS_RESULT_OKAY, result);
+}
+
+TEST(OS_SEM, sem_timeouts)
+{
+    OS_RESULT_ENUM result = OS_RESULT_OKAY;
+
+    // take and give a couple of times to make sure
+    // function at least act reasonably
+    result = os_sem_take(&gvOS_test_sem, 0);
+    TEST_ASSERT_EQUAL(OS_RESULT_OKAY, result);
+
+    result = os_sem_take(&gvOS_test_sem, 0);
+    TEST_ASSERT_EQUAL(OS_RESULT_TIMEOUT, result);
+
+    result = os_sem_take(&gvOS_test_sem, OS_TIMEOUT_NO_WAIT);
+    TEST_ASSERT_EQUAL(OS_RESULT_TIMEOUT, result);
+
+    result = os_sem_give(&gvOS_test_sem);
+    TEST_ASSERT_EQUAL(OS_RESULT_OKAY, result);
+
+    result = os_sem_take(&gvOS_test_sem, 1);
+    TEST_ASSERT_EQUAL(OS_RESULT_OKAY, result);
+}
+
 TEST_GROUP_RUNNER(OS_QUEUE)
 {
   RUN_TEST_CASE(OS_QUEUE, queue_create_null);
@@ -527,6 +601,13 @@ TEST_GROUP_RUNNER(OS_MUTEX)
 {
     RUN_TEST_CASE(OS_MUTEX, mutex_invalid);
     RUN_TEST_CASE(OS_MUTEX, mutex_basics);
+}
+
+TEST_GROUP_RUNNER(OS_SEM)
+{
+  RUN_TEST_CASE(OS_SEM, sem_invalid);
+  RUN_TEST_CASE(OS_SEM, sem_basics);
+  RUN_TEST_CASE(OS_SEM, sem_timeouts);
 }
 
 #endif

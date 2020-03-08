@@ -140,7 +140,7 @@ OS_RESULT_ENUM os_sem_take(OS_Sem *sem, OS_Timeout timeout)
     ret_code =
       pthread_cond_timedwait(&sem->cond, &sem->mutex, &timeout_spec);
 
-    if (ret_code < 0)
+    if (ret_code != 0)
     {
       result = OS_RESULT_ERROR;
     }
@@ -148,6 +148,8 @@ OS_RESULT_ENUM os_sem_take(OS_Sem *sem, OS_Timeout timeout)
 
   if (result == OS_RESULT_OKAY)
   {
+      // the condition variable is not used for mutual exclusion,
+      // so we just give the mutex immediately.
       ret_code = pthread_mutex_unlock(&sem->mutex);
       if (ret_code < 0)
       {
