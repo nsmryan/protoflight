@@ -14,17 +14,13 @@
 #include "os_sem.h"
 
 
+#define OS_SEM_SHARED 0
+
+
 OS_RESULT_ENUM os_sem_create(OS_Sem *sem)
 {
   OS_RESULT_ENUM result = OS_RESULT_OKAY;
   int ret_code = 0;
-
-  // a pthreads semaphore consists of a mutex and a condition
-  // variable. this function sets up both and stores them in
-  // the given sem.
-
-  pthread_mutexattr_t mutex_attr;
-  pthread_condattr_t cond_attr;
 
   if (sem == NULL)
   {
@@ -33,64 +29,7 @@ OS_RESULT_ENUM os_sem_create(OS_Sem *sem)
 
   if (result == OS_RESULT_OKAY)
   {
-    // The return of memset is not checked as it is a pointer to
-    // mutex_attr which cannot be NULL.
-    memset(&mutex_attr, 0, sizeof(mutex_attr));
-
-    ret_code = pthread_mutexattr_init(&mutex_attr);
-    if (ret_code < 0)
-    {
-      result = OS_RESULT_ERROR;
-    }
-  }
-
-  // set the mutex to use priority inheritance
-  if (result == OS_RESULT_OKAY)
-  {
-    ret_code = pthread_mutexattr_setprotocol(&mutex_attr, PTHREAD_PRIO_INHERIT);
-    if (ret_code < 0)
-    {
-      result = OS_RESULT_ERROR;
-    }
-  }
-
-  // initialze the mutex
-  if (result == OS_RESULT_OKAY)
-  {
-    ret_code = pthread_mutex_init(&sem->mutex, &mutex_attr);
-    if (ret_code < 0)
-    {
-      result = OS_RESULT_ERROR;
-    }
-  }
-
-  if (result == OS_RESULT_OKAY)
-  {
-    // The return of memset is not checked as it is a pointer to
-    // mutex_attr which cannot be NULL.
-    memset(&cond_attr, 0, sizeof(cond_attr));
-
-    ret_code = pthread_condattr_init(&cond_attr);
-    if (ret_code < 0)
-    {
-      result = OS_RESULT_ERROR;
-    }
-  }
-
-  if (result == OS_RESULT_OKAY)
-  {
-    // set the clock for the condition variable to the monotonic clock
-    ret_code = pthread_condattr_setclock(&cond_attr, CLOCK_MONOTONIC);
-    if (ret_code < 0)
-    {
-      result = OS_RESULT_ERROR;
-    }
-  }
-
-  // initialize condition variable with default settings
-  if (result == OS_RESULT_OKAY)
-  {
-    ret_code = pthread_cond_init(&sem->cond, &cond_attr);
+    ret_code = sem_init(sem, OS_SEM_SHARED, 0);
     if (ret_code < 0)
     {
       result = OS_RESULT_ERROR;
@@ -103,15 +42,19 @@ OS_RESULT_ENUM os_sem_create(OS_Sem *sem)
 OS_RESULT_ENUM os_sem_give(OS_Sem *sem)
 {
   OS_RESULT_ENUM result = OS_RESULT_OKAY;
+  int ret_code = 0;
 
   if (sem == NULL)
   {
     result = OS_RESULT_NULL_POINTER;
   }
-
-  if (result == OS_RESULT_OKAY)
+  else
   {
-    pthread_cond_signal(&sem->cond);
+    ret_code = sem_post(sem);
+    if (ret_code < 0)
+    {
+      result = OS_RESULT_ERROR;
+    }
   }
 
   return result;
@@ -137,24 +80,11 @@ OS_RESULT_ENUM os_sem_take(OS_Sem *sem, OS_Timeout timeout)
     timeout_spec.tv_sec += nanoseconds / OS_NANOSECONDS_PER_SECOND;
     timeout_spec.tv_nsec += nanoseconds % OS_NANOSECONDS_PER_SECOND;;
 
-    ret_code =
-      pthread_cond_timedwait(&sem->cond, &sem->mutex, &timeout_spec);
-
+    ret_code = sem_timedwait(sem, &timeout_spec);
     if (ret_code != 0)
     {
       result = OS_RESULT_ERROR;
     }
-  }
-
-  if (result == OS_RESULT_OKAY)
-  {
-      // the condition variable is not used for mutual exclusion,
-      // so we just give the mutex immediately.
-      ret_code = pthread_mutex_unlock(&sem->mutex);
-      if (ret_code < 0)
-      {
-          result = OS_RESULT_ERROR;
-      }
   }
 
   return result;

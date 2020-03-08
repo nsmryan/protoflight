@@ -110,7 +110,7 @@ OS_RESULT_ENUM os_timer_create(OS_Timer *timer)
 }
 
 OS_RESULT_ENUM os_timer_start(OS_Timer *timer,
-                              OS_TIMER_FUNC *callback,
+                              OS_TIMER_FUNC callback,
                               void *argument,
                               OS_Timeout timeout)
 {

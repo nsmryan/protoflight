@@ -6,8 +6,6 @@
  * This file contains the implementation of the OS abstraction for message
  * queues.
  */
-#if !defined(OS_QUEUE_PTHREAD)
-
 #include "stdint.h"
 #include "stdio.h"
 
@@ -124,7 +122,7 @@ OS_RESULT_ENUM os_queue_send(OS_Queue *queue,
     timeout_spec.tv_nsec = nanoseconds % OS_NANOSECONDS_PER_SECOND;;
 
     msg_size =
-      mq_timedsend(*queue, buffer, buffer_size_bytes, OS_QUEUE_PRIORITY, &timeout_spec);
+      mq_timedsend(*queue, (const char*)buffer, buffer_size_bytes, OS_QUEUE_PRIORITY, &timeout_spec);
 
     if (msg_size < 0)
     {
@@ -170,7 +168,7 @@ OS_RESULT_ENUM os_queue_receive(OS_Queue *queue,
 
     int priority = OS_QUEUE_PRIORITY;
     msg_size =
-      mq_timedreceive(*queue, buffer, *buffer_size_bytes, &priority, &timeout_spec);
+      mq_timedreceive(*queue, (char*)buffer, *buffer_size_bytes, (unsigned*)&priority, &timeout_spec);
 
     if (msg_size > 0)
     {
@@ -195,5 +193,3 @@ OS_RESULT_ENUM os_queue_receive(OS_Queue *queue,
 
   return result;
 }
-
-#endif /* !defined(OS_QUEUE_PTHREAD) */

@@ -9,7 +9,7 @@
  * intended for high performance, but rather as a simple alternative queue
  * for systems that do not implement librt.
  */
-#if defined(OS_QUEUE_PTHREAD)
+#if defined(OS_HAS_NO_QUEUES)
 
 #include "stdint.h"
 #include "stdio.h"
@@ -292,4 +292,4 @@ OS_RESULT_ENUM os_queue_receive(OS_Queue *queue,
   return result;
 }
 
-#endif /* defined(OS_QUEUE_PTHREAD) */
+#endif /* defined(OS_HAS_NO_QUEUES) */

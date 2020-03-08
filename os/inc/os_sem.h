@@ -19,6 +19,10 @@
  *
  * This function creates a semaphore.
  *
+ * Note that semaphores are created in the empty state. FreeRTOS initializes
+ * all semaphores in the empty state, and a semaphore can simply be given
+ * after creation if desired.
+ *
  * @return A OS result type either indicating success (OS_RESULT_OKAY)
  * or an error code indicating the cause of the error.
  */

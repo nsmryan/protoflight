@@ -19,8 +19,6 @@
 #define OS_MAX_TIMERS 32
 
 
-typedef bool (OS_TIMER_FUNC)(void *argument);
-
 /**
  * This function creates (but does not start) a timer.
  * The timer is not given a timeout or handler function until
@@ -50,7 +48,7 @@ OS_RESULT_ENUM os_timer_create(OS_Timer *timer);
  * was started successfully.
  */
 OS_RESULT_ENUM os_timer_start(OS_Timer *timer,
-                              OS_TIMER_FUNC *callback,
+                              OS_TIMER_FUNC callback,
                               void *argument,
                               OS_Timeout timeout);
 

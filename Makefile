@@ -8,22 +8,22 @@ MAKEFLAGS += --warn-undefined-variables
 MAKEFLAGS += --no-builtin-rules
 
 
-CFLAGS+=-Ios/$(OS)/inc/ -Ifsw/inc/ -Wall -Werror -O0 -g3
-LDFLAGS=-lrt -pthread -L/usr/lib/x86_64-linux-gnu/
-BUILDDIR=build
-
-# options are posix
+# default OS option is posix
 OS ?= posix
 
-OS_PTHREAD ?= 0
-ifeq ($(OS_PTHREAD), 1)
-	CFLAGS+=-DOS_QUEUE_PTHREAD
+CFLAGS+=-Ios/$(OS)/ -Ifsw/inc/ -Ios/inc/ -Wall -Werror -O0 -g3
+ifeq ($(OS), posix)
+		LDFLAGS=-lrt -pthread -L/usr/lib/x86_64-linux-gnu/
 endif
 
-build/test: $(shell find os/$(OS)/src test -type f -name *.c)
-	mkdir -p $(BUILDDIR)
-	$(CC) -static -g -o $@ $^ -Itest/unity/ -DUNITY_FIXTURE_NO_EXTRAS -DFSW_UNIT_TEST $(CFLAGS) ${LDFLAGS} 
+OS_HAS_NO_QUEUES ?= 0
+ifeq ($(OS_HAS_NO_QUEUES), 1)
+	CFLAGS+=-DOS_HAS_NO_QUEUES
+endif
+
+unit_test: test/test.c os/os_test.c $(shell find test/unity os/posix/src/ -type f -name *.c)
+	$(CC) -DFSW_UNIT_TEST -g -o $@ $^ -Itest/unity/ -DUNITY_FIXTURE_NO_EXTRAS $(CFLAGS) ${LDFLAGS} 
 
 clean:
-	rm -rf $(BUILDDIR)
+	rm -rf unit_test
 

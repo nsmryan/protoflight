@@ -279,7 +279,7 @@ TEST(OS_TIMER, timer_start_null)
 
   result =
       os_timer_start(NULL,
-                     os_timer_test_single,
+                     (OS_TIMER_FUNC)os_timer_test_single,
                      (void*)&gvOS_timerFlag,
                      timeout);
 
@@ -295,7 +295,7 @@ TEST(OS_TIMER, timer_start_single)
   // test a single timer call
   result =
       os_timer_start(&gvOS_test_timer,
-                     os_timer_test_single,
+                     (OS_TIMER_FUNC)os_timer_test_single,
                      (void*)&gvOS_timerFlag,
                      timeout);
   TEST_ASSERT_EQUAL(OS_RESULT_OKAY, result);
@@ -324,7 +324,7 @@ TEST(OS_TIMER, timer_start_reset)
   // test a single timer call
   result =
       os_timer_start(&gvOS_test_timer,
-                     os_timer_test_reset,
+                     (OS_TIMER_FUNC)os_timer_test_reset,
                      (void*)&gvOS_timerFlag,
                      timeout);
   TEST_ASSERT_EQUAL(OS_RESULT_OKAY, result);
@@ -525,6 +525,9 @@ TEST(OS_SEM, sem_basics)
 
     // take and give a couple of times to make sure
     // function at least act reasonably
+    result = os_sem_give(&gvOS_test_sem);
+    TEST_ASSERT_EQUAL(OS_RESULT_OKAY, result);
+
     result = os_sem_take(&gvOS_test_sem, 0);
     TEST_ASSERT_EQUAL(OS_RESULT_OKAY, result);
 
@@ -544,8 +547,9 @@ TEST(OS_SEM, sem_timeouts)
 
     // take and give a couple of times to make sure
     // function at least act reasonably
+    // note that the initial take fails because semaphores start empty
     result = os_sem_take(&gvOS_test_sem, 0);
-    TEST_ASSERT_EQUAL(OS_RESULT_OKAY, result);
+    TEST_ASSERT_EQUAL(OS_RESULT_TIMEOUT, result);
 
     result = os_sem_take(&gvOS_test_sem, 0);
     TEST_ASSERT_EQUAL(OS_RESULT_TIMEOUT, result);

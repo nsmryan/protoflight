@@ -8,8 +8,6 @@
  *
  * This implementation uses TinyCThreads for portability.
  */
-#if !defined(OS_QUEUE_PTHREAD)
-
 #include "stdint.h"
 #include "stdio.h"
 
@@ -197,5 +195,3 @@ OS_RESULT_ENUM os_queue_receive(OS_Queue *queue,
 
   return result;
 }
-
-#endif /* !defined(OS_QUEUE_PTHREAD) */
