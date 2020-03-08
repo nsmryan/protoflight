@@ -21,16 +21,6 @@
 
 typedef bool (OS_TIMER_FUNC)(void *argument);
 
-typedef struct OS_Timer
-{
-  timer_t timer;
-  int signal;
-  OS_TIMER_FUNC *callback;
-  void *argument;
-  OS_Timeout timeout;
-} OS_Timer;
-
-
 /**
  * This function creates (but does not start) a timer.
  * The timer is not given a timeout or handler function until

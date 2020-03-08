@@ -25,6 +25,7 @@
 #include "pthread.h"
 
 #include "os_definitions.h"
+#include "os_mutex.h"
 #include "os_queue.h"
 
 
@@ -36,13 +37,10 @@ OS_RESULT_ENUM os_queue_create(OS_Queue *queue,
 
   int ret_code = 0;
 
-  pthread_mutex_t mutex;
-  pthread_mutexattr_t mutex_attr;
+  OS_Mutex mutex;
 
-  pthread_cond_t read_condition;
-  pthread_cond_t write_condition;
-
-  pthread_condattr_t cond_attr;
+  OS_Sem read_sem;
+  OS_Sem write_sem;
 
   uint8_t *buffer = NULL;
   uint32_t *msg_sizes = NULL;
@@ -63,29 +61,7 @@ OS_RESULT_ENUM os_queue_create(OS_Queue *queue,
 
   if (result == OS_RESULT_OKAY)
   {
-    ret_code = pthread_mutexattr_init(&mutex_attr);
-    if (ret_code < 0)
-    {
-      result = OS_RESULT_ERROR;
-    }
-  }
-
-  if (result == OS_RESULT_OKAY)
-  {
-    ret_code = pthread_mutexattr_settype(&mutex_attr, PTHREAD_MUTEX_RECURSIVE);
-    if (ret_code < 0)
-    {
-      result = OS_RESULT_ERROR;
-    }
-  }
-
-  if (result == OS_RESULT_OKAY)
-  {
-    ret_code = pthread_mutex_init(&mutex, &mutex_attr);
-    if (ret_code < 0)
-    {
-      result = OS_RESULT_ERROR;
-    }
+    result = os_mutex_create(&mutex);
   }
 
   if (result == OS_RESULT_OKAY)
@@ -94,39 +70,12 @@ OS_RESULT_ENUM os_queue_create(OS_Queue *queue,
     // mutex_attr which cannot be NULL.
     memset(&cond_attr, 0, sizeof(cond_attr));
 
-    ret_code = pthread_condattr_init(&cond_attr);
-    if (ret_code < 0)
-    {
-      result = OS_RESULT_ERROR;
-    }
+    result = os_sem_create(&read_sem);
   }
 
   if (result == OS_RESULT_OKAY)
   {
-    // set the clock for the condition variable to the monotonic clock
-    ret_code = pthread_condattr_setclock(&cond_attr, CLOCK_MONOTONIC);
-    if (ret_code < 0)
-    {
-      result = OS_RESULT_ERROR;
-    }
-  }
-
-  if (result == OS_RESULT_OKAY)
-  {
-    ret_code = pthread_cond_init(&read_condition, &cond_attr);
-    if (ret_code < 0)
-    {
-      result = OS_RESULT_ERROR;
-    }
-  }
-
-  if (result == OS_RESULT_OKAY)
-  {
-    ret_code = pthread_cond_init(&write_condition, &cond_attr);
-    if (ret_code < 0)
-    {
-      result = OS_RESULT_ERROR;
-    }
+    result = os_sem_create(&write_sem);
   }
 
   // allocate space for messages
@@ -154,8 +103,8 @@ OS_RESULT_ENUM os_queue_create(OS_Queue *queue,
     memset(queue, 0, sizeof(OS_Queue));
 
     queue->mutex = mutex;
-    queue->write_condition = write_condition;
-    queue->read_condition = read_condition;
+    queue->write_sem = write_sem;
+    queue->read_sem = read_sem;
     queue->num_msgs = num_msgs;
     queue->msg_size_bytes = msg_size_bytes;
     queue->buffer = buffer;
@@ -216,20 +165,9 @@ OS_RESULT_ENUM os_queue_send(OS_Queue *queue,
     timeout_spec.tv_sec += nanoseconds / OS_NANOSECONDS_PER_SECOND;
     timeout_spec.tv_nsec += nanoseconds % OS_NANOSECONDS_PER_SECOND;
 
-    int ret_code = pthread_mutex_timedlock(&queue->mutex, &timeout_spec);
+    result = os_mutex_take(&queue->mutex, &timeout_spec);
 
-    if (ret_code < 0)
-    {
-      if (errno == ETIMEDOUT)
-      {
-        result = OS_RESULT_TIMEOUT;
-      }
-      else
-      {
-        result = OS_RESULT_ERROR;
-      }
-    }
-    else
+    if (result == OS_RESULT_OKAY)
     {
       mutex_taken = true;
     }
@@ -242,23 +180,7 @@ OS_RESULT_ENUM os_queue_send(OS_Queue *queue,
     if (queue->num_queued == queue->num_msgs)
     {
       // wait for the queue to empty by at least one
-      ret_code = pthread_cond_timedwait(&queue->write_condition, &queue->mutex, &timeout_spec);
-      if (ret_code != 0)
-      {
-        // note that we check the return code instead of errno, per the pthread_cond_timedwait manual page
-        if (ret_code == ETIMEDOUT)
-        {
-          result = OS_RESULT_TIMEOUT;
-        }
-        else
-        {
-          result = OS_RESULT_ERROR;
-        }
-
-        mutex_taken = false;
-
-      }
-    }
+      result = os_sem_take(&queue->write_sem, &timeout_spec);
   }
 
   if (result == OS_RESULT_OKAY)
@@ -278,20 +200,12 @@ OS_RESULT_ENUM os_queue_send(OS_Queue *queue,
 
     // if any threads where blocking waiting for a message to arrive, signal them.
     // This also has the effect of releasing the queue mutex.
-    ret_code = pthread_cond_signal(&queue->read_condition);
-    if (ret_code < 0)
-    {
-      result = OS_RESULT_ERROR;
-    }
+    result = os_sem_give(&queue->read_sem);
   }
 
   if (mutex_taken)
   {
-    ret_code = pthread_mutex_unlock(&queue->mutex);
-    if (ret_code < 0)
-    {
-      result = OS_RESULT_ERROR;
-    }
+    result = os_mutex_give(&queue->mutex);
   }
 
   return result;
@@ -331,13 +245,9 @@ OS_RESULT_ENUM os_queue_receive(OS_Queue *queue,
     timeout_spec.tv_sec = nanoseconds / OS_NANOSECONDS_PER_SECOND;
     timeout_spec.tv_nsec = nanoseconds % OS_NANOSECONDS_PER_SECOND;;
 
-    ret_code = pthread_mutex_timedlock(&queue->mutex, &timeout_spec);
+    result = os_mutex_take(&queue->mutex, &timeout_spec);
 
-    if (ret_code < 0)
-    {
-      result = OS_RESULT_ERROR;
-    }
-    else
+    if (result == OS_RESULT_OKAY)
     {
       mutex_taken = true;
     }
@@ -348,22 +258,7 @@ OS_RESULT_ENUM os_queue_receive(OS_Queue *queue,
     // check if the queue is empty
     if (queue->num_queued == 0)
     {
-      ret_code = pthread_cond_timedwait(&queue->read_condition, &queue->mutex, &timeout_spec);
-      if (ret_code != 0)
-      {
-        // note that we check the return code instead of errno, per the pthread_cond_timedwait manual page
-        if (ret_code == ETIMEDOUT)
-        {
-          result = OS_RESULT_TIMEOUT;
-        }
-        else
-        {
-          result = OS_RESULT_ERROR;
-        }
-
-        // pthread_cond_timedwait gives the mutex, and if it fails we do not have it.
-        mutex_taken = false;
-      }
+      result = os_sem_take(&queue->read_sem, &timeout_spec);
     }
   }
 
@@ -386,20 +281,12 @@ OS_RESULT_ENUM os_queue_receive(OS_Queue *queue,
 
     // signal to any threads waiting for space to open up that a message was read.
     // This has the effect of releasing the queue mutex as well.
-    ret_code = pthread_cond_signal(&queue->write_condition);
-    if (ret_code < 0)
-    {
-      result = OS_RESULT_ERROR;
-    }
+    result = os_sem_give(&queue->write_condition);
   }
 
   if (mutex_taken)
   {
-    ret_code = pthread_mutex_unlock(&queue->mutex);
-    if (ret_code < 0)
-    {
-      result = OS_RESULT_ERROR;
-    }
+    result = os_mutex_give(&queue->mutex);
   }
 
   return result;

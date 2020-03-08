@@ -16,11 +16,6 @@
 #include "os_definitions.h"
 
 
-/**
- * This definition is for the internal representation of a mutex
- * within the OS abstraction.
- */
-typedef pthread_mutex_t OS_Mutex;
 
 /**
  * @brief os_mutex_create

@@ -5,8 +5,6 @@
  * 
  * This file contains the definitions for the OS task abstraction used
  * by the fsw.
- *
- * This implementation uses TinyCThreads for portability.
  */
 #ifndef __OS_TASK_H__
 #define __OS_TASK_H__
@@ -15,13 +13,6 @@
 
 #include "os_definitions.h"
 
-
-/**
- * The OS_Task type is the implementation dependant type for
- * tasks. This type is used as a pointer, allowing it to either
- * point to task data, or to a handle passed to OS functions.
- */
-typedef pthread_t OS_Task;
 
 /**
  * The OS_TASK_FUNC type is for task function pointers registered
@@ -67,5 +58,16 @@ OS_RESULT_ENUM os_task_spawn(OS_Task *task,
  * current status of the task.
  */
 OS_TASK_STATUS_ENUM os_task_status(OS_Task *task);
+
+/**
+ * @brief os_task_delay
+ *
+ * This function delays (sleeps) a task for a given number of system
+ * clock ticks.
+ *
+ * @param timeout - the number of system clock ticks to delay.
+ *
+ */
+OS_TASK_STATUS_ENUM os_task_delay(OS_Timeout timeout);
 
 #endif // ndef __OS_TASK_H__ */

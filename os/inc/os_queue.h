@@ -23,35 +23,6 @@
 
 
 /**
- * This definition is the underlying data definition for queues.
- */
-#if defined(OS_QUEUE_PTHREAD)
-#include "pthread.h"
-
-typedef struct OS_Queue
-{
-  pthread_mutex_t mutex;
-  pthread_cond_t write_condition;
-  pthread_cond_t read_condition;
-
-  uint8_t *buffer;
-  uint32_t *msg_sizes;
-
-  uint32_t num_msgs;
-  uint32_t msg_size_bytes;
-  uint32_t read_offset;
-  uint32_t write_offset;
-
-  uint32_t num_queued;
-} OS_Queue;
-#else
-#include "mqueue.h"
-
-typedef mqd_t OS_Queue;
-#endif
-
-
-/**
  * @brief os_queue_create
  *
  * This function creates a new queue with a given message size

@@ -5,8 +5,6 @@
  *
  * This file contains definitions for the OS semaphore abstraction
  * used by the fsw.
- *
- * This implementation uses TinyCThreads for portability.
  */
 #ifndef __OS_SEM_H__
 #define __OS_SEM_H__
@@ -14,17 +12,6 @@
 #include "pthread.h"
 
 #include "os_definitions.h"
-
-
-/**
- * This definition is for the internal representation of a semaphore
- * within the OS abstraction.
- */
-typedef struct OS_Sem
-{
-  pthread_cond_t cond;
-  pthread_mutex_t mutex;
-} OS_Sem;
 
 
 /**
