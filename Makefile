@@ -16,6 +16,10 @@ ifeq ($(OS), posix)
 		LDFLAGS=-lrt -pthread -L/usr/lib/x86_64-linux-gnu/
 endif
 
+ifeq ($(OS), tinycthread)
+		CFLAGS+=lib/tinycthread/tinycthread.c -Ilib/tinycthread/
+endif
+
 OS_WSL ?= 0
 ifeq ($(OS_WSL), 1)
 	CFLAGS+=-DOS_WSL
