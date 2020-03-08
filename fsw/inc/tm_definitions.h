@@ -35,9 +35,24 @@
 #define TM_MAX_TASKS 100
 
 /**
+ * This definition is the period of the scheduler task
+ */
+#define TM_SCHEDULER_PERIOD 1
+
+/**
+ * This definition is the priority of the scheduler task
+ */
+#define TM_SCHEDULER_PERIOD 1
+
+/**
  * The name of the Task Manager's schedule task
  */
 #define TM_TASK_NAME_TM_SCHEDULER "tm_scheduler"
+
+/**
+ * The maximum length of a task's name.
+ */
+#define TM_MAX_TASK_NAME_LENGTH 32
 
 
 /**
@@ -109,6 +124,7 @@ typedef struct TM_Task
 	int priority;
 	OS_Sem semaphore;
   OS_Task os_task;
+  char name[TM_MAX_TASK_NAME_LENGTH];
 } TM_Task;
 
 /**

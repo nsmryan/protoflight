@@ -67,11 +67,7 @@ void em_event(FSW_MODULEID_ENUM module_id,
     {
        gvEM_state.status.message_errors++;
     }
-    }
-    else
-    {
-       gvEM_state.status.message_errors++;
-    }
+  }
 }
 
 void em_get_status(EM_Status *status)

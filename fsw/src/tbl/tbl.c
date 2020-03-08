@@ -18,8 +18,12 @@ TBL_State gvTBL_state = {0};
 
 FSW_RESULT_ENUM tbl_initialize(void)
 {
-  // NOTE read tables from flash.
-  // Use table definitions for names and where to load them.
+    FSW_RESULT_ENUM result = FSW_RESULT_OKAY;
+
+    // NOTE read tables from flash.
+    // Use table definitions for names and where to load them.
+
+    return result;
 }
 
 TBL_RESULT_ENUM tbl_retrieve_table(TBL_TABLE_ID_ENUM table_id,

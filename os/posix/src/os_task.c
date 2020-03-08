@@ -63,7 +63,7 @@ OS_RESULT_ENUM os_task_spawn(OS_Task *task,
 
   if (result == OS_RESULT_OKAY)
   {
-    if (stack_size == 0)
+    if ((stack_size == 0) || (priority < 0))
     {
       result = OS_RESULT_INVALID_ARGUMENTS;
     }
@@ -71,7 +71,7 @@ OS_RESULT_ENUM os_task_spawn(OS_Task *task,
 
   if (result == OS_RESULT_OKAY)
   {
-    if ((priority < SIGRTMIN) || (priority > SIGRTMAX))
+    if (priority > (SIGRTMAX - SIGRTMIN))
     {
       result = OS_RESULT_INVALID_ARGUMENTS;
     }
@@ -201,29 +201,32 @@ OS_TASK_STATUS_ENUM os_task_delay(OS_Timeout timeout)
 
     struct timespec timespec_timeout;
 
+    int ret_code = clock_gettime(CLOCK_MONOTONIC, &timespec_timeout);
+
     uint64_t timeout_ns = timeout * OS_CONFIG_CLOCK_TICK_NANOSECONDS;
 
-    timespec_timeout.tv_sec  = timeout_ns / 1000000000;
-    timespec_timeout.tv_nsec = timeout_ns % 1000000000;
-
-
-    int ret_code = 0;
+    timespec_timeout.tv_sec  += timeout_ns / 1000000000;
+    timespec_timeout.tv_nsec += timeout_ns % 1000000000;
 
     // drain down the timeout, even if the sleep is interrupted by signal
-    ret_code = nanosleep(&timespec_timeout, &timespec_timeout);
-    while ((ret_code == -1) && (errno == EINTR))
+    ret_code =
+        clock_nanosleep(CLOCK_MONOTONIC,
+                        TIMER_ABSTIME,
+                        &timespec_timeout,
+                        &timespec_timeout);
+    while (ret_code == EINTR)
     {
-        ret_code = nanosleep(&timespec_timeout, &timespec_timeout);
+        ret_code =
+            clock_nanosleep(CLOCK_MONOTONIC,
+                            TIMER_ABSTIME,
+                            &timespec_timeout,
+                            &timespec_timeout);
     }
 
-    if (ret_code == -1)
+    if (ret_code != 0)
     {
         result = OS_RESULT_ERROR;
     }
-    // TODO consider
-    // clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &timeout_spec, NULL);
-    // in a loop until returns 0.
-
 
     return result;
 }

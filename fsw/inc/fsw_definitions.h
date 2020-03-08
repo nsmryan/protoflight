@@ -40,6 +40,11 @@
 #define FSW_TASK_ID_TELEMETRY 10
 
 /**
+ * This definition is the default stack size for a task in this system
+ */
+#define FSW_DEFAULT_STACKS_SIZE (1024 * 20)
+
+/**
  * The module id enum enumerates all modules within the FSW system.
  * When adding a new module, it should be given a module id in this enum.
  */

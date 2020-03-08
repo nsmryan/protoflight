@@ -8,6 +8,8 @@
 #ifndef __TLM_INTERFACE_H__
 #define __TLM_INTERFACE_H__
 
+#include "os_task.h"
+
 #include "tlm_definitions.h"
 
 

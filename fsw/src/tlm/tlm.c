@@ -7,6 +7,7 @@
  */
 #include "stddef.h"
 #include "string.h"
+#include "stdio.h"
 
 #include "fsw_definitions.h"
 #include "fsw_tasks.h"

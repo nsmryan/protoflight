@@ -119,8 +119,11 @@ TM_RESULT_ENUM tm_monitor_task(char *task_name, TM_TaskId task_id);
  * This task monitors all registered tasks, and will call task
  * callbacks at their registered rate, and unblock scheduled
  * tasks at their registered rate.
+ *
+ * @param[in] argument - this is an unused argument that is required
+ *                       by the type of a scheduled task.
  */
-void tm_scheduler_task(void);
+void tm_scheduler_task(void *argument);
 
 /**
  * @brief tm_running

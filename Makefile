@@ -25,8 +25,11 @@ ifeq ($(OS_WSL), 1)
 	CFLAGS+=-DOS_WSL
 endif
 
+protoflight: $(shell find fsw/ os/$(OS)/src -type f -name *.c)
+	$(CC) -o $@ $^ $(CFLAGS) ${LDFLAGS} 
+
 unit_test: test/test.c os/os_test.c $(shell find test/unity os/${OS}/src/ -type f -name *.c)
-	$(CC) -DFSW_UNIT_TEST -g -o $@ $^ -Itest/unity/ -DUNITY_FIXTURE_NO_EXTRAS $(CFLAGS) ${LDFLAGS} 
+	$(CC) -o $@ $^ -Itest/unity/ -DFSW_UNIT_TEST -DUNITY_FIXTURE_NO_EXTRAS $(CFLAGS) ${LDFLAGS} 
 
 clean:
 	rm -rf unit_test

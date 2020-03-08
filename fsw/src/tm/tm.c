@@ -7,6 +7,8 @@
  */
 #include "stddef.h"
 #include "stdbool.h"
+#include "string.h"
+#include "stdio.h"
 
 #include "os_task.h"
 #include "os_sem.h"
@@ -50,8 +52,14 @@ void tm_process_task(TM_TASKSTATUS_ENUM status, TM_TaskId task_id);
  *
  * This function is the callback used to start the Task Manager
  * schedule. This is run in a OS watchdog timer.
+ *
+ * @param[in] argument - this is unused, but is required by the type of
+ *            the timer callback.
+ *
+ * @return a return of true will cause the timer to restart, and a return
+ *         of false will stop the timer.
  */
-void tm_schedule_callback(void);
+bool tm_schedule_callback(void *argument);
 
 
 FSW_RESULT_ENUM tm_initialize(void)
@@ -61,9 +69,20 @@ FSW_RESULT_ENUM tm_initialize(void)
 
   TM_RESULT_ENUM tm_result = TM_RESULT_OKAY;
 
+
+  memset(&gvTM_state, 0, sizeof(gvTM_state));
+  gvTM_state.continue_running = true;
+
+
   tm_result =
-    tm_monitor_task(FSW_TASK_NAME_TM_SCHEDULER,
-                    FSW_TASK_ID_TM_SCHEDULER);
+    tm_periodic_task(FSW_TASK_NAME_TM_SCHEDULER,
+                     FSW_TASK_ID_TM_SCHEDULER,
+                     tm_scheduler_task,
+                     NULL,
+                     TM_SCHEDULER_PERIOD,
+                     TM_SCHEDULER_PERIOD,
+                     FSW_DEFAULT_STACKS_SIZE,
+                     TM_SCHEDULER_PERIOD);
   if (tm_result != TM_RESULT_OKAY)
   {
     fsw_result = FSW_RESULT_TASK_REGISTRATION_ERROR;
@@ -91,13 +110,11 @@ FSW_RESULT_ENUM tm_initialize(void)
   return fsw_result;
 }
 
-void tm_schedule_callback(void)
+bool tm_schedule_callback(void *argument)
 {
   os_sem_give(&gvTM_state.schedule_semaphore);
 
-  os_timer_start(&gvTM_state.schedule_timer,
-                 tm_schedule_callback,
-                 TM_SYSTEM_CLOCK_TICKS_PER_SLOT);
+  return true;
 }
 
 TM_RESULT_ENUM tm_start()
@@ -107,19 +124,28 @@ TM_RESULT_ENUM tm_start()
 
   for (int task_id = 0; task_id < TM_MAX_TASKS; task_id++)
   {
-    os_task_spawn(&gvTM_state.tasks[task_id].os_task,
-                  gvTM_state.tasks[task_id].function,
-                  gvTM_state.tasks[task_id].argument,
-                  gvTM_state.tasks[task_id].priority,
-                  gvTM_state.tasks[task_id].stack_size);
-    if (os_result != OS_RESULT_OKAY)
+    if ((gvTM_state.tasks[task_id].type == TM_TASKTYPE_PERIODIC) ||
+        (gvTM_state.tasks[task_id].type == TM_TASKTYPE_CALLBACK) ||
+        (gvTM_state.tasks[task_id].type == TM_TASKTYPE_EVENT))
     {
-      tm_result = TM_RESULT_TASK_SPAWN_ERROR;
+        printf("Starting %s\n", gvTM_state.tasks[task_id].name);
+
+        os_result = 
+            os_task_spawn(&gvTM_state.tasks[task_id].os_task,
+                          gvTM_state.tasks[task_id].function,
+                          gvTM_state.tasks[task_id].argument,
+                          gvTM_state.tasks[task_id].priority,
+                          gvTM_state.tasks[task_id].stack_size);
+        if (os_result != OS_RESULT_OKAY)
+        {
+          tm_result = TM_RESULT_TASK_SPAWN_ERROR;
+        }
     }
   }
 
   os_result = os_timer_start(&gvTM_state.schedule_timer,
                              tm_schedule_callback,
+                             0,
                              TM_SYSTEM_CLOCK_TICKS_PER_SLOT);
   if (os_result != OS_RESULT_OKAY)
   {
@@ -144,7 +170,7 @@ void tm_stop(void)
   gvTM_state.continue_running = false;
 }
 
-void tm_scheduler_task(void)
+void tm_scheduler_task(void *argument)
 {
   while (gvTM_state.continue_running)
   {
@@ -155,7 +181,6 @@ void tm_scheduler_task(void)
     {
       for (int task_id = 0; task_id < TM_MAX_TASKS; task_id++)
       {
-
         // NOTE that the os specific task checking is missing
         // from this function
         OS_TASK_STATUS_ENUM task_status = 
@@ -259,7 +284,7 @@ TM_TASKSTATUS_ENUM tm_update_task(TM_Task *task)
     tm_status = TM_RESULT_NULL_POINTER;
   }
 
-  if (tm_status == TM_RESULT_OKAY)
+  if (tm_status == TM_TASKSTATUS_INVALID)
   {
     task->ticks++;
 
@@ -270,7 +295,7 @@ TM_TASKSTATUS_ENUM tm_update_task(TM_Task *task)
         break;
 
       case TM_TASKTYPE_PERIODIC:
-              tm_status = TM_TASKSTATUS_WAIT;
+        tm_status = TM_TASKSTATUS_WAIT;
 
         // periodic tasks are scheduled with the given period
         if (task->ticks == task->schedule_period)
@@ -355,6 +380,11 @@ TM_RESULT_ENUM tm_periodic_task(char *task_name,
     gvTM_state.tasks[task_id].stack_size = stack_size;
     gvTM_state.tasks[task_id].priority = priority;
 
+    // copy the task name, leaving space for a NULL terminator
+    strncpy(gvTM_state.tasks[task_id].name, task_name, TM_MAX_TASK_NAME_LENGTH - 1);
+    // NULL terminate the task name if it is the maximum length
+    gvTM_state.tasks[task_id].name[TM_MAX_TASK_NAME_LENGTH - 1] = '\0';
+
     OS_RESULT_ENUM os_result =
       os_sem_create(&gvTM_state.tasks[task_id].semaphore);
     if (os_result == OS_RESULT_OKAY)
@@ -396,6 +426,11 @@ TM_RESULT_ENUM tm_event_task(char *task_name,
     gvTM_state.tasks[task_id].stack_size = stack_size;
     gvTM_state.tasks[task_id].priority = priority;
 
+    // copy the task name, leaving space for a NULL terminator
+    strncpy(gvTM_state.tasks[task_id].name, task_name, TM_MAX_TASK_NAME_LENGTH - 1);
+    // NULL terminate the task name if it is the maximum length
+    gvTM_state.tasks[task_id].name[TM_MAX_TASK_NAME_LENGTH - 1] = '\0';
+
     gvTM_state.num_tasks++;
   }
 
@@ -426,6 +461,11 @@ TM_RESULT_ENUM tm_callback_task(char *task_name,
     gvTM_state.tasks[task_id].stack_size = 0;
     gvTM_state.tasks[task_id].priority = 0;
 
+    // copy the task name, leaving space for a NULL terminator
+    strncpy(gvTM_state.tasks[task_id].name, task_name, TM_MAX_TASK_NAME_LENGTH - 1);
+    // NULL terminate the task name if it is the maximum length
+    gvTM_state.tasks[task_id].name[TM_MAX_TASK_NAME_LENGTH - 1] = '\0';
+
     gvTM_state.num_tasks++;
   }
 
@@ -451,6 +491,11 @@ TM_RESULT_ENUM tm_monitor_task(char *task_name, int task_id)
     gvTM_state.tasks[task_id].heartbeat_period = 0;
     gvTM_state.tasks[task_id].stack_size = 0;
     gvTM_state.tasks[task_id].priority = 0;
+
+    // copy the task name, leaving space for a NULL terminator
+    strncpy(gvTM_state.tasks[task_id].name, task_name, TM_MAX_TASK_NAME_LENGTH - 1);
+    // NULL terminate the task name if it is the maximum length
+    gvTM_state.tasks[task_id].name[TM_MAX_TASK_NAME_LENGTH - 1] = '\0';
 
     gvTM_state.num_tasks++;
   }

@@ -9,7 +9,7 @@
  */
 #include "stddef.h"
 #include "stdlib.h"
-#include "string.h" // for memset
+#include "string.h"
 
 #include "fsw_definitions.h"
 #include "msg_definitions.h"
@@ -28,6 +28,8 @@ MB_State gvMB_state = {0};
 FSW_RESULT_ENUM mb_initialize(void)
 {
   FSW_RESULT_ENUM result = FSW_RESULT_OKAY;
+
+  memset(&gvMB_state, 0, sizeof(gvMB_state));
 
   return result;
 }
@@ -151,6 +153,10 @@ MB_RESULT_ENUM mb_create_pipe(MB_Pipe *pipe,
         os_queue_create(&gvMB_state.pipes[next_pipe],
                         msg_size_bytes,
                         num_msgs);
+      if (os_result != OS_RESULT_OKAY)
+      {
+          result = MB_RESULT_PIPE_CREATE_FAILED;
+      }
 
     }
 
