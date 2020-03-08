@@ -9,6 +9,8 @@
 #ifndef __OS_DEFINITIONS_H__
 #define __OS_DEFINITIONS_H__
 
+#include "stdint.h"
+
 #include "time.h" // included because of CLOCKS_PER_SEC
 
 #include "semaphore.h"
@@ -24,14 +26,22 @@
 typedef pthread_mutex_t OS_Mutex;
 
 /**
+ * This definition is for the internal representation of a semaphore
+ * within the OS abstraction.
+ */
+typedef sem_t OS_Sem;
+
+/**
  * This definition is the underlying data definition for queues.
  */
-#if defined(OS_HAS_NO_QUEUES)
+#if defined(OS_WSL)
+#include "pthread.h"
+
 typedef struct OS_Queue
 {
-  OS_Mutex mutex;
-  OS_Sem write_sem;
-  OS_Sem read_sem;
+  pthread_mutex_t mutex;
+  pthread_cond_t write_condition;
+  pthread_cond_t read_condition;
 
   uint8_t *buffer;
   uint32_t *msg_sizes;
@@ -48,12 +58,6 @@ typedef struct OS_Queue
 
 typedef mqd_t OS_Queue;
 #endif
-
-/**
- * This definition is for the internal representation of a semaphore
- * within the OS abstraction.
- */
-typedef sem_t OS_Sem;
 
 /**
  * The OS_Task type is the implementation dependant type for

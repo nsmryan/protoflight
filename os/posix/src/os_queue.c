@@ -6,6 +6,8 @@
  * This file contains the implementation of the OS abstraction for message
  * queues.
  */
+#if !defined(OS_WSL)
+
 #include "stdint.h"
 #include "stdio.h"
 
@@ -193,3 +195,5 @@ OS_RESULT_ENUM os_queue_receive(OS_Queue *queue,
 
   return result;
 }
+
+#endif /* defined OS_WSL */
