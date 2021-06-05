@@ -4,7 +4,8 @@
  * @author Noah Ryan
  *
  * This file contains a main function for the flight software.
- * This simply calls a function to initialize the software.
+ * This simply calls the initialization function for each module
+ * in the protoflight system.
  */
 #include "stdint.h"
 #include "stdbool.h"

@@ -11,7 +11,9 @@ MAKEFLAGS += --no-builtin-rules
 # default OS option is posix
 OS ?= posix
 
-CFLAGS+=-Ios/$(OS)/ -Ifsw/inc/ -Ios/inc/ -Wall -Werror -O0 -g3
+CFLAGS += -O0 -g3
+CFLAGS += -Ios/$(OS)/ -Ifsw/inc/ -Ios/inc/ -Wall -Werror -Wextra
+
 ifeq ($(OS), posix)
 		LDFLAGS=-lrt -pthread -L/usr/lib/x86_64-linux-gnu/
 endif
