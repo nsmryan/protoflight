@@ -123,8 +123,8 @@ typedef struct TM_Task
 	int stack_size;
 	int priority;
 	OS_Sem semaphore;
-  OS_Task os_task;
-  char name[TM_MAX_TASK_NAME_LENGTH];
+    OS_Task os_task;
+    char name[TM_MAX_TASK_NAME_LENGTH];
 } TM_Task;
 
 /**

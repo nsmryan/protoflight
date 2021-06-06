@@ -72,6 +72,11 @@ TBL_RESULT_ENUM tbl_update_table(TBL_TABLE_ID_ENUM table_id,
                                  uint8_t *table_buffer,
                                  uint32_t table_size)
 {
+    (void)table_id;
+    (void)table_size;
+    (void)table_buffer;
+    (void)location;
+
     TBL_RESULT_ENUM tbl_result = TBL_RESULT_OKAY;
 
     // NOTE probably need hardware to implement stored memory tables

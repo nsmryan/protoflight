@@ -26,72 +26,74 @@ TLM_State gvTLM_state;
 
 FSW_RESULT_ENUM tlm_initialize(void)
 {
-  FSW_RESULT_ENUM result = FSW_RESULT_OKAY;
+    FSW_RESULT_ENUM result = FSW_RESULT_OKAY;
 
-  memset(&gvTLM_state, 0, sizeof(gvTLM_state));
+    memset(&gvTLM_state, 0, sizeof(gvTLM_state));
 
-  TM_RESULT_ENUM tm_result =
-    tm_periodic_task(FSW_TASK_NAME_TLM,
-                     FSW_TASK_ID_TLM,
-                     tlm_telemetry_task,
-                     FSW_TASK_NO_ARGUMENT,
-                     FSW_TASK_RATE_1_HZ,
-                     FSW_HEARBEAT_RATE_1_HZ,
-                     FSW_DEFAULT_STACK_SIZE,
-                     FSW_PRIORITY_TLM_TASK);
+    TM_RESULT_ENUM tm_result =
+        tm_periodic_task(FSW_TASK_NAME_TLM,
+                         FSW_TASK_ID_TLM,
+                         tlm_telemetry_task,
+                         FSW_TASK_NO_ARGUMENT,
+                         FSW_TASK_RATE_1_HZ,
+                         FSW_HEARBEAT_RATE_1_HZ,
+                         FSW_DEFAULT_STACK_SIZE,
+                         FSW_PRIORITY_TLM_TASK);
 
-  if (tm_result != TM_RESULT_OKAY)
-  {
-    result = FSW_RESULT_TASK_REGISTRATION_ERROR;
-  }
+    if (tm_result != TM_RESULT_OKAY)
+    {
+        result = FSW_RESULT_TASK_REGISTRATION_ERROR;
+    }
 
-  return result;
+    return result;
 }
 
 void tlm_get_status(TLM_Status *status)
 {
-  if (status != NULL)
-  {
-    *status = gvTLM_state.status;
-  }
+    if (status != NULL)
+    {
+        *status = gvTLM_state.status;
+    }
 }
 
 void tlm_telemetry_task(void *argument)
 {
-  TLM_TelemetryMessage telemetry = {0};
+    (void)argument;
 
-  while (tm_running(FSW_TASK_ID_TELEMETRY))
-  {
-    tlm_get_status(&telemetry.telemetry.tlm);
-    mb_get_status(&telemetry.telemetry.mb);
-    em_get_status(&telemetry.telemetry.em);
-    tbl_get_status(&telemetry.telemetry.tbl);
-    tm_get_status(&telemetry.telemetry.tm);
+    TLM_TelemetryMessage telemetry = {0};
 
-    // return value not checked because the message cannot be null.
-    msg_telemetry_message((MSG_Header*)&telemetry,
-                          MSG_PACKETTYPE_TELEMETRY,
-                          sizeof(TLM_TelemetryMessage));
-
-    MB_RESULT_ENUM mb_result = mb_send(&telemetry.header, OS_TIMEOUT_NO_WAIT);
-
-    if (mb_result == MB_RESULT_OKAY)
+    while (tm_running(FSW_TASK_ID_TELEMETRY))
     {
-      gvTLM_state.status.telemetry_sent++;
-    }
-    else
-    {
-      gvTLM_state.status.telemetry_errors++;
-      em_event(FSW_MODULEID_TLM,
-         TLM_EVENT_ID_TLM_ERROR,
-         __LINE__,
-         0, 0, 0, 0, 0);
-    }
+        tlm_get_status(&telemetry.telemetry.tlm);
+        mb_get_status(&telemetry.telemetry.mb);
+        em_get_status(&telemetry.telemetry.em);
+        tbl_get_status(&telemetry.telemetry.tbl);
+        tm_get_status(&telemetry.telemetry.tm);
 
-    // zero out the telemetry structure so it is ready for the next
-    // set of telemetry definitions.
-    // the return of memset is the source pointer, which cannot be NULL.
-    memset(&telemetry.telemetry, 0, sizeof(telemetry.telemetry));
-  }
+        // return value not checked because the message cannot be null.
+        msg_telemetry_message((MSG_Header*)&telemetry,
+                               MSG_PACKETTYPE_TELEMETRY,
+                               sizeof(TLM_TelemetryMessage));
+
+        MB_RESULT_ENUM mb_result = mb_send(&telemetry.header, OS_TIMEOUT_NO_WAIT);
+
+        if (mb_result == MB_RESULT_OKAY)
+        {
+            gvTLM_state.status.telemetry_sent++;
+        }
+        else
+        {
+            gvTLM_state.status.telemetry_errors++;
+            em_event(FSW_MODULEID_TLM,
+                     TLM_EVENT_ID_TLM_ERROR,
+                     __LINE__,
+                     0, 0, 0, 0, 0);
+        }
+
+        // zero out the telemetry structure so it is ready for the next
+        // set of telemetry definitions.
+        // the return of memset is the source pointer, which cannot be NULL.
+        memset(&telemetry.telemetry, 0, sizeof(telemetry.telemetry));
+    }
 }
 
