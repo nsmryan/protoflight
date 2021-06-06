@@ -72,3 +72,7 @@ Abstraction:
 Static Analysis:
     * some level of static analysis should be run- cppcheck and/or cobra for example.
     * the compiler flags could be much stricter.
+
+Ground System:
+    * ideally there would be a ground system to work with, likely Ball COSMOS.
+
