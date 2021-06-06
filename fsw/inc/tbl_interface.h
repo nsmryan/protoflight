@@ -19,6 +19,13 @@
 
 
 /**
+ * This is the initialization function for the Table module.
+ *
+ * @return A FSW_RESULT indicating whether intialization succeeded.
+ */
+FSW_RESULT_ENUM tbl_initialize(void);
+
+/**
  * @brief tbl_update_table
  *
  * This function updates the Table module's version of a

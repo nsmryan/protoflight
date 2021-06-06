@@ -19,6 +19,9 @@
 
 int main(int argc, char *argv[])
 {
+    (void)argc;
+    (void)argv;
+
 	FSW_RESULT_ENUM fsw_result = FSW_RESULT_OKAY;
 
 	bool initialize_success = true;
@@ -73,11 +76,12 @@ int main(int argc, char *argv[])
 	if (!initialize_success)
 	{
 		em_event(FSW_MODULEID_INIT,
-			 FSW_EVENT_INIT_ERROR,
-			 (module_flags & 0xFFFF00000) >> 32,
-			 (module_flags & 0x00000FFFF),
-			 tasks_init_success,
-			 0, 0);
+			     FSW_EVENT_INIT_ERROR,
+                 __LINE__,
+			     (module_flags & 0xFFFF00000) >> 32,
+			     (module_flags & 0x00000FFFF),
+			     tasks_init_success,
+			     0, 0);
 	}
 
 	return 0;
