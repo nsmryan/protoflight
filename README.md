@@ -75,3 +75,6 @@ Static Analysis:
 Ground System:
     * ideally there would be a ground system to work with, likely Ball COSMOS.
 
+Best Practice:
+    * add documentation generation with pandoc and markdown files as an example.
+    * run with valgrind for memory and threading.
