@@ -35,8 +35,7 @@ of that size).
     by itself is not the only goal, as some features are worth extra code, but should be taken into account.
   * Portability - this software should not rely on its operating system or board directly. Project-specific modules
     are welcome to depend on anything they like, but the core software system should not.
-  * Consistency - the ensure software system should ensure that every definition, comment, and line of code
-    comply with a consistent style.
+  * Consistency - the software should be consistent in every definition, comment, and line of code.
   * Testability - ideally the software should be designed in a way that allows testing. For example: most logic, especially
     conditional statements, loops, etc, should be in functions that do not use the operating system or rely on any
     external interface to assist in simple and repeatable unit testing.
