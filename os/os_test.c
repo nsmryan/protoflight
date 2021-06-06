@@ -331,13 +331,13 @@ TEST(OS_TIMER, timer_start_reset)
 
   TEST_ASSERT_EQUAL(false, gvOS_timerFlag);
 
-  os_task_delay(timeout + 1);
+  os_task_delay(timeout + 2);
   TEST_ASSERT_EQUAL(true, gvOS_timerFlag);
 
   os_task_delay(timeout + 1);
   TEST_ASSERT_EQUAL(false, gvOS_timerFlag);
 
-  os_task_delay(timeout);
+  os_task_delay(timeout + 2);
   TEST_ASSERT_EQUAL(true, gvOS_timerFlag);
 
   result = os_timer_stop(&gvOS_test_timer);

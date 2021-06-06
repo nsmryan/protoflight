@@ -8,7 +8,9 @@ MAKEFLAGS += --warn-undefined-variables
 MAKEFLAGS += --no-builtin-rules
 
 
-# default OS option is posix
+# OS options:
+# posix - general POSIX, using librt unless on WSL.
+# tinypthread - C11 implemented through the tinypthread library, for testing only.
 OS ?= posix
 
 CFLAGS += -O0 -g3
@@ -19,6 +21,8 @@ TEST_CFLAGS += -Itest/unity -DFSW_UNIT_TEST -DUNITY_FIXTURE_NO_EXTRAS
 
 ifeq ($(OS), posix)
 	LDFLAGS=-lrt -pthread -L/usr/lib/x86_64-linux-gnu/
+	# NOTE is this needed for MSYS2?
+	#LDFLAGS += -L/usr/lib/x86_64-linux-gnu/
 endif
 
 ifeq ($(OS), tinycthread)
