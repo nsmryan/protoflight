@@ -39,13 +39,13 @@ endif
 LDLIBS += -lrt
 
 # OS source files
-OS_SRC := os/$(OS)/src/os_mutex.c os/$(OS)/src/os_queue_portable.c os/$(OS)/src/os_sem.c os/$(OS)/src/os_task.c os/$(OS)/src/os_time.c os/$(OS)/src/os_timer.c
+OS_SRC := os_mutex.c os_sem.c os_task.c os_time.c os_timer.c
 
 # if using WSL, use the portable queue as librt is not supported
 ifeq ($(OS_WSL), 1)
-OS_SRC += os/$(OS)/src/os_queue_portable.c
+OS_SRC += os_queue_portable.c
 else
-OS_SRC += os/$(OS)/src/os_queue.c
+OS_SRC += os_queue.c
 endif
 
 
@@ -59,7 +59,7 @@ TEST_OBJS := $(addprefix $(BUILD)/, $(addsuffix .to, $(basename $(notdir $(TEST_
 
 VPATH := fsw/src/em fsw/src/fsw fsw/src/mb fsw/src/msg fsw/src/tbl fsw/src/tlm fsw/src/tm os/$(OS)/src os/$(OS) os test test/unity
 
-.PHONY: all protoflight test
+.PHONY: all protoflight test sloc
 
 all: $(BUILD)/protoflight $(BUILD)/unit_test
 
@@ -67,6 +67,9 @@ protoflight: $(BUILD)/protoflight
 
 test: $(BUILD)/unit_test
 	./unit_test
+
+sloc:
+	cloc $(SRC)
 
 $(BUILD)/protoflight: $(OBJS) | $(BUILD) $(BUILD)/main.o
 	$(CC) $(CFLAGS) ${LDFLAGS} main.c -o $@ $^ $(LDLIBS)
