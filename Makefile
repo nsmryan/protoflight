@@ -7,6 +7,8 @@ MAKEFLAGS += --warn-undefined-variables
 # do not use build in rules- we will defined the rules we need
 MAKEFLAGS += --no-builtin-rules
 
+# build directory to place output files
+BUILD ?= build
 
 # OS options:
 # posix - general POSIX, using librt unless on WSL.
@@ -47,16 +49,31 @@ OS_SRC += os/$(OS)/src/os_queue.c
 endif
 
 
+FSW_SRC := fsw/src/em/em.c
 SRC := $(OS_SRC)
 
-TEST_SRC := $(SRC) test/test.c os/os_test.c test/unity/unity.c test/unity/unity_fixture.c
+TEST_SRC := $(SRC) test.c os_test.c unity.c unity_fixture.c
 
-protoflight: $(shell find fsw/ os/$(OS)/src -type f -name *.c)
+OBJS := $(addprefix $(BUILD)/, $(addsuffix .o, $(basename $(notdir $(SRC)))))
+TEST_OBJS := $(addprefix $(BUILD)/, $(addsuffix .to, $(basename $(notdir $(TEST_SRC)))))
+
+VPATH := fsw/src/em fsw/src/fsw fsw/src/mb fsw/src/msg fsw/src/tbl fsw/src/tlm fsw/src/tm os/$(OS)/src os/$(OS) os test test/unity
+
+$(BUILD)/protoflight: $(OBJS) | $(BUILD)
 	$(CC) $(CFLAGS) ${LDFLAGS} -o $@ $^ $(LDLIBS)
 
-unit_test: $(TEST_SRC) $(shell find test/unity os/${OS}/src/ -type f -name *.c)
+unit_test: $(TEST_OBJS) | $(BUILD)
 	$(CC) ${LDFLAGS} $(TEST_CFLAGS) -o $@ $^ $(LDLIBS)
 
+$(BUILD)/%.o: %.c | $(BUILD)
+	$(CC) $(CFLAGS) ${LDFLAGS} -c -o $@ $^ $(LDLIBS)
+
+$(BUILD)/%.to: %.c | $(BUILD)
+	$(CC) $(TEST_CFLAGS) ${LDFLAGS} -c -o $@ $^ $(LDLIBS)
+
+$(BUILD):
+	-@mkdir -p build
+
 clean:
-	rm -rf unit_test
+	rm -rf build
 
