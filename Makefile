@@ -59,13 +59,19 @@ TEST_OBJS := $(addprefix $(BUILD)/, $(addsuffix .to, $(basename $(notdir $(TEST_
 
 VPATH := fsw/src/em fsw/src/fsw fsw/src/mb fsw/src/msg fsw/src/tbl fsw/src/tlm fsw/src/tm os/$(OS)/src os/$(OS) os test test/unity
 
-.PHONY: all
+.PHONY: all protoflight test
+
 all: $(BUILD)/protoflight $(BUILD)/unit_test
 
-$(BUILD)/protoflight: $(OBJS) | $(BUILD)
+protoflight: $(BUILD)/protoflight
+
+test: $(BUILD)/unit_test
+	./unit_test
+
+$(BUILD)/protoflight: $(OBJS) | $(BUILD) $(BUILD)/main.o
 	$(CC) $(CFLAGS) ${LDFLAGS} main.c -o $@ $^ $(LDLIBS)
 
-$(BUILD)/unit_test: $(TEST_OBJS) | $(BUILD)
+$(BUILD)/unit_test: $(TEST_OBJS) | $(BUILD) $(BUILD)/test.o
 	$(CC) ${LDFLAGS} $(TEST_CFLAGS) test/test.c -o $@ $^ $(LDLIBS)
 
 $(BUILD)/%.o: %.c | $(BUILD)

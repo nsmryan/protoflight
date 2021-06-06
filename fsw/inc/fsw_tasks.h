@@ -45,7 +45,12 @@
 /**
  * This definition is the task priority of the Telemetry task.
  */
-#define FSW_PRIORITY_TLM_TASK 50
+#define FSW_PRIORITY_TLM_TASK 25
+
+/**
+ * This definition is the task priority of the Task Scheduler task.
+ */
+#define TM_SCHEDULER_PRIORITY 1
 
 /* Task Ids */
 /**

@@ -82,7 +82,7 @@ FSW_RESULT_ENUM tm_initialize(void)
                          TM_SCHEDULER_PERIOD,
                          TM_SCHEDULER_PERIOD,
                          FSW_DEFAULT_STACKS_SIZE,
-                         TM_SCHEDULER_PERIOD);
+                         TM_SCHEDULER_PRIORITY);
     if (tm_result != TM_RESULT_OKAY)
     {
         fsw_result = FSW_RESULT_TASK_REGISTRATION_ERROR;
@@ -127,7 +127,6 @@ TM_RESULT_ENUM tm_start()
     for (int task_id = 0; task_id < TM_MAX_TASKS; task_id++)
     {
         if ((gvTM_state.tasks[task_id].type == TM_TASKTYPE_PERIODIC) ||
-            (gvTM_state.tasks[task_id].type == TM_TASKTYPE_CALLBACK) ||
             (gvTM_state.tasks[task_id].type == TM_TASKTYPE_EVENT))
         {
             os_result = 

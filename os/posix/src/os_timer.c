@@ -20,10 +20,8 @@
 
 /**
  * The signal to allocate to the next timer created.
- * Note that this starts at -1 so that it can be initialized
- * when the first timer is created.
  */
-static int gvOS_currentSignal = -1;
+static int gvOS_currentSignal = 0;
 
 
 static OS_Timer *gvOS_timers[OS_MAX_TIMERS];
@@ -120,6 +118,8 @@ OS_RESULT_ENUM os_timer_start(OS_Timer *timer,
 
     // set up the signal that this timer triggers
     struct sigaction signal_action;
+    // the result of memset is not checked
+    (void)memset((void*)&signal_action, 0, sizeof(signal_action));
 
 
     if ((timer == NULL) || (callback == NULL))
@@ -129,17 +129,22 @@ OS_RESULT_ENUM os_timer_start(OS_Timer *timer,
 
     if (result == OS_RESULT_OKAY)
     {
+        timer->callback = callback;
         timer->argument = argument;
         timer->timeout = timeout;
 
-        // the result of memset is not checked, as it returns the destination pointer
-        // which cannot be NULL.
-        memset((void*)&signal_action, 0, sizeof(signal_action));
+        sigset_t signal_set;
+        // no errors are defined for sigemptyset so its return value is ignored
+        (void)sigemptyset(&signal_set);
 
-        ret_code = sigemptyset((sigset_t*)&signal_action);
+        ret_code = sigaddset(&signal_set, timer->signal);
         if (ret_code < 0)
         {
             result = OS_RESULT_ERROR;
+        }
+        else
+        {
+            signal_action.sa_mask = signal_set;
         }
     }
 
@@ -187,11 +192,6 @@ OS_RESULT_ENUM os_timer_start(OS_Timer *timer,
         {
             result = OS_RESULT_ERROR;
         }
-    }
-
-    if (result == OS_RESULT_OKAY)
-    {
-        timer->callback = callback;
     }
 
     return result;
