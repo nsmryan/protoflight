@@ -130,8 +130,6 @@ TM_RESULT_ENUM tm_start()
             (gvTM_state.tasks[task_id].type == TM_TASKTYPE_CALLBACK) ||
             (gvTM_state.tasks[task_id].type == TM_TASKTYPE_EVENT))
         {
-            printf("Starting %s\n", gvTM_state.tasks[task_id].name);
-
             os_result = 
                 os_task_spawn(&gvTM_state.tasks[task_id].os_task,
                               gvTM_state.tasks[task_id].function,

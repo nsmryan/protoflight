@@ -43,10 +43,10 @@ void *os_task_pthread_function(void *argument)
 }
 
 OS_RESULT_ENUM os_task_spawn(OS_Task *task,
-                             OS_TASK_FUNC function,
-                             void *argument,
-                             int priority,
-                             int stack_size)
+        OS_TASK_FUNC function,
+        void *argument,
+        int priority,
+        int stack_size)
 {
     OS_RESULT_ENUM result = OS_RESULT_OKAY;
 

@@ -10,6 +10,7 @@
 #include "stdint.h"
 #include "stdbool.h"
 
+#include "fsw_tasks.h"
 #include "tm_interface.h"
 #include "em_interface.h"
 #include "tlm_interface.h"
@@ -31,6 +32,14 @@ int main(int argc, char *argv[])
 	uint64_t module_flags = 0ULL;
 
 	bool tasks_init_success = false;
+
+    TM_RESULT_ENUM tmResult;
+    tmResult = tm_monitor_task(FSW_TASK_NAME_MAIN, FSW_TASK_ID_MAIN);
+	if (tmResult != TM_RESULT_OKAY)
+	{
+		initialize_success = false;
+		module_flags |= (1ULL << FSW_MODULEID_INIT);
+	}
 
 	fsw_result = tm_initialize();
 	if (fsw_result != FSW_RESULT_OKAY)
@@ -83,6 +92,11 @@ int main(int argc, char *argv[])
 			     tasks_init_success,
 			     0, 0);
 	}
+
+    while (tm_running(FSW_TASK_ID_MAIN))
+    {
+        os_task_delay(10);
+    }
 
 	return 0;
 }

@@ -45,7 +45,7 @@ OS_RESULT_ENUM os_sem_give(OS_Sem *sem)
 {
     OS_RESULT_ENUM result = OS_RESULT_OKAY;
     int ret_code = 0;
-  
+
     if (sem == NULL)
     {
         result = OS_RESULT_NULL_POINTER;
@@ -58,7 +58,7 @@ OS_RESULT_ENUM os_sem_give(OS_Sem *sem)
             result = OS_RESULT_ERROR;
         }
     }
-  
+
     return result;
 }
 
@@ -66,22 +66,22 @@ OS_RESULT_ENUM os_sem_take(OS_Sem *sem, OS_Timeout timeout)
 {
     OS_RESULT_ENUM result = OS_RESULT_OKAY;
     int ret_code = 0;
-  
+
     if (sem == NULL)
     {
         result = OS_RESULT_NULL_POINTER;
     }
-  
+
     if (result == OS_RESULT_OKAY)
     {
         struct timespec timeout_spec;
-  
+
         clock_gettime(CLOCK_MONOTONIC, &timeout_spec);
-  
+
         int nanoseconds = timeout * OS_CONFIG_CLOCK_TICK_NANOSECONDS;
         timeout_spec.tv_sec += nanoseconds / OS_NANOSECONDS_PER_SECOND;
         timeout_spec.tv_nsec += nanoseconds % OS_NANOSECONDS_PER_SECOND;;
-  
+
         ret_code = sem_timedwait(sem, &timeout_spec);
         while ((ret_code == -1) && (errno == EINTR))
         {
@@ -100,7 +100,7 @@ OS_RESULT_ENUM os_sem_take(OS_Sem *sem, OS_Timeout timeout)
             result = OS_RESULT_ERROR;
         }
     }
-  
+
     return result;
 }
 

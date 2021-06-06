@@ -23,6 +23,7 @@
 
 
 /* Task Names */
+#define FSW_TASK_NAME_MAIN "Main"
 #define FSW_TASK_NAME_TLM "Telemetry"
 #define FSW_TASK_NAME_TM_SCHEDULER "TmScheduler"
 
@@ -48,13 +49,20 @@
 
 /* Task Ids */
 /**
- * This definition is the task id for the Telemetry task.
+ * This definition is the task id for the main task that starts
+ * the FSW process.
  */
-#define FSW_TASK_ID_TLM 1
+#define FSW_TASK_ID_MAIN 1
 
 /**
  * This definition is the task id for the TM Scheduler task.
  */
 #define FSW_TASK_ID_TM_SCHEDULER 2
+
+/**
+ * This definition is the task id for the Telemetry task.
+ */
+#define FSW_TASK_ID_TLM 3
+
 
 #endif /* ndef __FSW_TASKS_H__ */
