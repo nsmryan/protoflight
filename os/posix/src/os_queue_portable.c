@@ -5,7 +5,7 @@
  *
  * This file contains the implementation of the OS abstraction for message
  * queues.
- * This implementation uses only pthread to implement a queue. It is not
+ * This implementation uses only pthreads to implement a queue. It is not
  * intended for high performance, but rather as a simple alternative queue
  * for systems that do not implement librt.
  */

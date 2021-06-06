@@ -442,7 +442,7 @@ TEST(OS_TASK, task_spawn)
     OS_RESULT_ENUM result = OS_RESULT_OKAY;
     OS_Task task;
 
-    result = os_task_spawn(&task, os_test_task, &gvOS_taskFlag, 40, 1024 * 10);
+    result = os_task_spawn(&task, os_test_task, &gvOS_taskFlag, 20, 1024 * 10);
     TEST_ASSERT_EQUAL(OS_RESULT_OKAY, result);
 
     os_task_delay(1);
