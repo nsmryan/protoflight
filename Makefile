@@ -68,8 +68,8 @@ protoflight: $(BUILD)/protoflight
 test: $(BUILD)/unit_test
 	./unit_test
 
-sloc:
-	cloc $(SRC)
+sloc: $(SRC)
+	cloc $^
 
 $(BUILD)/protoflight: $(OBJS) | $(BUILD) $(BUILD)/main.o
 	$(CC) $(CFLAGS) ${LDFLAGS} main.c -o $@ $^ $(LDLIBS)
