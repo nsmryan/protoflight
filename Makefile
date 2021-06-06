@@ -49,10 +49,10 @@ OS_SRC += os/$(OS)/src/os_queue.c
 endif
 
 
-FSW_SRC := main.c em.c fsw.c mb.c msg.c tbl.c tlm.c tm.c
+FSW_SRC := em.c fsw.c mb.c msg.c tbl.c tlm.c tm.c
 SRC := $(OS_SRC) $(FSW_SRC)
 
-TEST_SRC := $(SRC) test.c os_test.c unity.c unity_fixture.c
+TEST_SRC := $(SRC) os_test.c unity.c unity_fixture.c
 
 OBJS := $(addprefix $(BUILD)/, $(addsuffix .o, $(basename $(notdir $(SRC)))))
 TEST_OBJS := $(addprefix $(BUILD)/, $(addsuffix .to, $(basename $(notdir $(TEST_SRC)))))
@@ -63,10 +63,10 @@ VPATH := fsw/src/em fsw/src/fsw fsw/src/mb fsw/src/msg fsw/src/tbl fsw/src/tlm f
 all: $(BUILD)/protoflight $(BUILD)/unit_test
 
 $(BUILD)/protoflight: $(OBJS) | $(BUILD)
-	$(CC) $(CFLAGS) ${LDFLAGS} -o $@ $^ $(LDLIBS)
+	$(CC) $(CFLAGS) ${LDFLAGS} main.c -o $@ $^ $(LDLIBS)
 
-unit_test: $(TEST_OBJS) | $(BUILD)
-	$(CC) ${LDFLAGS} $(TEST_CFLAGS) -o $@ $^ $(LDLIBS)
+$(BUILD)/unit_test: $(TEST_OBJS) | $(BUILD)
+	$(CC) ${LDFLAGS} $(TEST_CFLAGS) test/test.c -o $@ $^ $(LDLIBS)
 
 $(BUILD)/%.o: %.c | $(BUILD)
 	$(CC) $(CFLAGS) ${LDFLAGS} -c -o $@ $^ $(LDLIBS)
