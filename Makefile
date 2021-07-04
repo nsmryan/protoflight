@@ -33,7 +33,7 @@ endif
 
 OS_WSL ?= 0
 ifeq ($(OS_WSL), 1)
-	CFLAGS+=-DOS_WSL
+	CFLAGS+=-DOS_WSL=1
 endif
 
 LDLIBS += -lrt
@@ -50,32 +50,35 @@ endif
 
 
 FSW_SRC := em.c fsw.c mb.c msg.c tbl.c tlm.c tm.c
-SRC := $(OS_SRC) $(FSW_SRC)
+SRC := $(OS_SRC) $(FSW_SRC) main.c
 
-TEST_SRC := $(SRC) os_test.c unity.c unity_fixture.c
+TEST_SRC := $(OS_SRC) $(FSW_SRC) os_test.c mb_test.c unity.c unity_fixture.c test.c
 
 OBJS := $(addprefix $(BUILD)/, $(addsuffix .o, $(basename $(notdir $(SRC)))))
 TEST_OBJS := $(addprefix $(BUILD)/, $(addsuffix .to, $(basename $(notdir $(TEST_SRC)))))
 
 VPATH := fsw/src/em fsw/src/fsw fsw/src/mb fsw/src/msg fsw/src/tbl fsw/src/tlm fsw/src/tm os/$(OS)/src os/$(OS) os test test/unity
 
-.PHONY: all protoflight test sloc
+.PHONY: all protoflight test sloc run
 
 all: $(BUILD)/protoflight $(BUILD)/unit_test
 
 protoflight: $(BUILD)/protoflight
 
 test: $(BUILD)/unit_test
-	./unit_test
+	$(BUILD)/unit_test
 
 sloc: $(SRC)
 	cloc $^
 
-$(BUILD)/protoflight: $(OBJS) | $(BUILD) $(BUILD)/main.o
-	$(CC) $(CFLAGS) ${LDFLAGS} main.c -o $@ $^ $(LDLIBS)
+run: protoflight
+	@$(BUILD)/protoflight
 
-$(BUILD)/unit_test: $(TEST_OBJS) | $(BUILD) $(BUILD)/test.o
-	$(CC) ${LDFLAGS} $(TEST_CFLAGS) test/test.c -o $@ $^ $(LDLIBS)
+$(BUILD)/protoflight: $(OBJS) | $(BUILD)
+	$(CC) $(CFLAGS) ${LDFLAGS} -o $@ $^ $(LDLIBS)
+
+$(BUILD)/unit_test: $(TEST_OBJS) | $(BUILD)
+	$(CC) ${LDFLAGS} $(TEST_CFLAGS) -o $@ $^ $(LDLIBS)
 
 $(BUILD)/%.o: %.c | $(BUILD)
 	$(CC) $(CFLAGS) ${LDFLAGS} -c -o $@ $^ $(LDLIBS)

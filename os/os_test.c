@@ -6,8 +6,6 @@
  * This file contains the unit tests for the OS module of the Protoflight software.
  * The test are Unity (ThrowTheSwitch) test fixtures.
  */
-#if defined(FSW_UNIT_TEST)
-
 #include "stdbool.h"
 #include "string.h"
 
@@ -613,5 +611,3 @@ TEST_GROUP_RUNNER(OS_SEM)
   RUN_TEST_CASE(OS_SEM, sem_basics);
   RUN_TEST_CASE(OS_SEM, sem_timeouts);
 }
-
-#endif

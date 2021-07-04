@@ -38,12 +38,12 @@ MB_RESULT_ENUM mb_send(MSG_Header *message, OS_Timeout timeout)
 {
     MB_RESULT_ENUM result = MB_RESULT_OKAY;
 
-    gvMB_state.status.messages_received++;
+    gvMB_state.status.messages_sent++;
 
     if (message == NULL)
     {
         result = MB_RESULT_NULL_POINTER;
-        gvMB_state.status.message_errors++;
+        gvMB_state.status.message_sent_errors++;
 
         em_event(FSW_MODULEID_MB,
                  FSW_EVENT_NULL_POINTER,
@@ -58,14 +58,14 @@ MB_RESULT_ENUM mb_send(MSG_Header *message, OS_Timeout timeout)
         // plus the size of the header itself.
         uint32_t msg_size = message->length + sizeof(MSG_Header);
 
-        MSG_PACKETTYPE_ENUM packet_type =
-            (MSG_PACKETTYPE_ENUM)message->packet_type;
+        MSG_PACKETID_ENUM packet_id =
+            (MSG_PACKETID_ENUM)message->packet_id;
 
         for (uint16_t pipe_index = 0;
-             pipe_index < gvMB_state.packets[packet_type].num_queues;
+             pipe_index < gvMB_state.packets[packet_id].num_queues;
              pipe_index++)
         {
-            uint32_t pipe_index = gvMB_state.packets[packet_type].queues[pipe_index];
+            uint32_t pipe_index = gvMB_state.packets[packet_id].queues[pipe_index];
             OS_RESULT_ENUM os_result =
                 os_queue_send(&gvMB_state.pipes[pipe_index],
                               (uint8_t*)message,
@@ -74,14 +74,25 @@ MB_RESULT_ENUM mb_send(MSG_Header *message, OS_Timeout timeout)
 
             if (os_result != OS_RESULT_OKAY)
             {
-                em_event(FSW_MODULEID_MB,
-                         MB_EVENT_MESSAGE_NOT_SENT,
-                         __LINE__,
-                         (uint32_t)packet_type,
-                         (uint32_t)pipe_index,
-                         0, 0, 0);
+                // Timeouts are handled separately, as they are an expected error
+                // condition in some case.
+                if (os_result == OS_RESULT_TIMEOUT)
+                {
+                    result = MB_RESULT_TIMEOUT;
+                }
+                else
+                {
+                    // set result to error, but continue the loop in case
+                    // other pipes can continue functioning.
+                    result = MB_RESULT_SEND_ERROR;
 
-                gvMB_state.status.message_errors++;
+                    // usually an em message would be generated here, but we cannot be sure
+                    // that the problem isn't itself caused by an em message.
+                    gvMB_state.status.send_error_packet_id = packet_id;
+                    gvMB_state.status.send_error_pipe_index = pipe_index;
+                    gvMB_state.status.send_error_code = os_result;
+                    gvMB_state.status.message_sent_errors++;
+                }
             }
         }
     }
@@ -119,7 +130,20 @@ MB_RESULT_ENUM mb_receive(MB_Pipe pipe_id,
 
         if (os_result != OS_RESULT_OKAY)
         {
-            result = MB_RESULT_PIPE_READ_ERROR;
+            // Timeouts are handled separately, as they are an expected error
+            // condition in some case.
+            if (os_result == OS_RESULT_TIMEOUT)
+            {
+                result = MB_RESULT_TIMEOUT;
+            }
+            else
+            {
+                result = MB_RESULT_PIPE_READ_ERROR;
+
+                gvMB_state.status.receive_error_pipe_id = pipe_id;
+                gvMB_state.status.receive_error_code = os_result;
+                gvMB_state.status.message_receive_errors++;
+            }
         }
     }
 
@@ -127,8 +151,8 @@ MB_RESULT_ENUM mb_receive(MB_Pipe pipe_id,
 }
 
 MB_RESULT_ENUM mb_create_pipe(MB_Pipe *pipe,
-                              uint32_t msg_size_bytes,
-                              uint32_t num_msgs)
+                              uint32_t num_msgs,
+                              uint32_t msg_size_bytes)
 {
     MB_RESULT_ENUM result = MB_RESULT_OKAY;
 
@@ -151,8 +175,8 @@ MB_RESULT_ENUM mb_create_pipe(MB_Pipe *pipe,
 
         OS_RESULT_ENUM os_result =
             os_queue_create(&gvMB_state.pipes[next_pipe],
-                            msg_size_bytes,
-                            num_msgs);
+                            num_msgs,
+                            msg_size_bytes);
         if (os_result != OS_RESULT_OKAY)
         {
             result = MB_RESULT_PIPE_CREATE_FAILED;
@@ -170,7 +194,7 @@ MB_RESULT_ENUM mb_create_pipe(MB_Pipe *pipe,
     return result;
 }
 
-MB_RESULT_ENUM mb_register_packet(MB_Pipe pipe, MSG_PACKETTYPE_ENUM packet_type)
+MB_RESULT_ENUM mb_register_packet(MB_Pipe pipe, MSG_PACKETID_ENUM packet_id)
 {
     MB_RESULT_ENUM result = MB_RESULT_OKAY;
 
@@ -183,7 +207,7 @@ MB_RESULT_ENUM mb_register_packet(MB_Pipe pipe, MSG_PACKETTYPE_ENUM packet_type)
 
     if (result == MB_RESULT_OKAY)
     {
-        next_queue = gvMB_state.packets[packet_type].num_queues;
+        next_queue = gvMB_state.packets[packet_id].num_queues;
 
         if (next_queue >= MB_MAX_PIPES_PER_PACKET)
         {
@@ -193,9 +217,9 @@ MB_RESULT_ENUM mb_register_packet(MB_Pipe pipe, MSG_PACKETTYPE_ENUM packet_type)
 
     if (result == MB_RESULT_OKAY)
     {
-        gvMB_state.packets[packet_type].queues[next_queue] = pipe;
+        gvMB_state.packets[packet_id].queues[next_queue] = pipe;
 
-        gvMB_state.packets[packet_type].num_queues++;
+        gvMB_state.packets[packet_id].num_queues++;
     }
 
     return result;

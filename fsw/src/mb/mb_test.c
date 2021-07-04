@@ -1,0 +1,170 @@
+/**
+ * @file mb_test.c
+ *
+ * @brief Message Bus Module Unit Tests
+ *
+ * @author Noah Ryan
+ *
+ * This file contains the unit tests for the Message Bus module.
+ */
+#include "stddef.h"
+#include "stdlib.h"
+#include "string.h"
+
+#include "unity.h"
+#include "unity_fixture.h"
+
+#include "fsw_definitions.h"
+#include "msg_definitions.h"
+#include "em_interface.h"
+#include "msg_definitions.h"
+#include "msg_interface.h"
+
+#include "mb_definitions.h"
+#include "mb_interface.h"
+
+
+#define FSW_MB_TEST_MSG_SIZE sizeof(MSG_Header)
+#define FSW_MB_TEST_NUM_MSGS 5
+
+
+extern MB_State gvMB_state;
+
+
+TEST_GROUP(FSW_MB);
+
+TEST_SETUP(FSW_MB)
+{
+    FSW_RESULT_ENUM result;
+    result = mb_initialize();
+    TEST_ASSERT_EQUAL(FSW_RESULT_OKAY, result);
+}
+
+TEST_TEAR_DOWN(FSW_MB)
+{
+}
+
+TEST(FSW_MB, create_pipe_null)
+{
+    MB_RESULT_ENUM result;
+    result = mb_create_pipe(NULL, FSW_MB_TEST_NUM_MSGS, FSW_MB_TEST_MSG_SIZE);
+    TEST_ASSERT_EQUAL(MB_RESULT_NULL_POINTER, result);
+    TEST_ASSERT_EQUAL(0, gvMB_state.num_pipes);
+}
+
+TEST(FSW_MB, create_pipe)
+{
+    MB_RESULT_ENUM result;
+
+    MB_Pipe pipe;
+    result = mb_create_pipe(&pipe, FSW_MB_TEST_NUM_MSGS, FSW_MB_TEST_MSG_SIZE);
+    TEST_ASSERT_EQUAL(MB_RESULT_OKAY, result);
+    TEST_ASSERT_EQUAL(1, gvMB_state.num_pipes);
+}
+
+TEST(FSW_MB, create_many_pipes)
+{
+    MB_RESULT_ENUM result;
+
+    for (uint32_t pipeIndex = 0; pipeIndex < MB_MAX_NUM_PIPES; pipeIndex++)
+    {
+        MB_Pipe pipe;
+        result = mb_create_pipe(&pipe, FSW_MB_TEST_NUM_MSGS, FSW_MB_TEST_MSG_SIZE);
+        TEST_ASSERT_EQUAL(MB_RESULT_OKAY, result);
+        TEST_ASSERT_EQUAL(pipeIndex + 1, gvMB_state.num_pipes);
+    }
+
+    MB_Pipe pipe;
+    result = mb_create_pipe(&pipe, FSW_MB_TEST_NUM_MSGS, FSW_MB_TEST_MSG_SIZE);
+    TEST_ASSERT_EQUAL(MB_RESULT_MAX_PIPES_REACHED, result);
+    TEST_ASSERT_EQUAL(MB_MAX_NUM_PIPES, gvMB_state.num_pipes);
+}
+
+TEST(FSW_MB, register_packet_null)
+{
+    MB_Pipe pipe = 10000;
+
+    MB_RESULT_ENUM result;
+    result = mb_register_packet(pipe, MSG_PACKETID_HEALTHANDSTATUS);
+    TEST_ASSERT_EQUAL(MB_RESULT_INVALID_PIPE, result);
+}
+
+TEST(FSW_MB, register_over_max)
+{
+    MB_Pipe pipe = 0;
+
+    for (uint32_t packetIndex = 0; packetIndex < MB_MAX_PIPES_PER_PACKET; packetIndex++)
+    {
+        MB_RESULT_ENUM result;
+        result = mb_register_packet(pipe, MSG_PACKETID_HEALTHANDSTATUS);
+        TEST_ASSERT_EQUAL(MB_RESULT_OKAY, result);
+    }
+
+    MB_RESULT_ENUM result;
+    result = mb_register_packet(pipe, MSG_PACKETID_HEALTHANDSTATUS);
+    TEST_ASSERT_EQUAL(MB_RESULT_MAX_PIPES_REACHED, result);
+}
+
+TEST(FSW_MB, register_packet_command)
+{
+    MB_RESULT_ENUM result;
+
+    MB_Pipe pipe;
+    result = mb_create_pipe(&pipe, FSW_MB_TEST_NUM_MSGS, FSW_MB_TEST_MSG_SIZE);
+    TEST_ASSERT_EQUAL(MB_RESULT_OKAY, result);
+    
+    result = mb_register_packet(pipe, MSG_PACKETID_COMMAND);
+    TEST_ASSERT_EQUAL(MB_RESULT_OKAY, result);
+}
+
+TEST(FSW_MB, register_packet_telemetry)
+{
+    MB_RESULT_ENUM result;
+
+    MB_Pipe pipe;
+    result = mb_create_pipe(&pipe, FSW_MB_TEST_NUM_MSGS, FSW_MB_TEST_MSG_SIZE);
+    TEST_ASSERT_EQUAL(MB_RESULT_OKAY, result);
+    
+    result = mb_register_packet(pipe, MSG_PACKETID_HEALTHANDSTATUS);
+    TEST_ASSERT_EQUAL(MB_RESULT_OKAY, result);
+}
+
+TEST(FSW_MB, send_receive)
+{
+    MB_RESULT_ENUM result;
+
+    MB_Pipe pipe;
+    result = mb_create_pipe(&pipe, FSW_MB_TEST_NUM_MSGS, FSW_MB_TEST_MSG_SIZE);
+    TEST_ASSERT_EQUAL(MB_RESULT_OKAY, result);
+    
+    result = mb_register_packet(pipe, MSG_PACKETID_HEALTHANDSTATUS);
+    TEST_ASSERT_EQUAL(MB_RESULT_OKAY, result);
+
+    MSG_Header header;
+    MSG_RESULT_ENUM msgResult;
+    msgResult = msg_telemetry_message(&header, MSG_PACKETID_HEALTHANDSTATUS, 0);
+    TEST_ASSERT_EQUAL(MSG_RESULT_OKAY, msgResult);
+
+    result = mb_send(&header, OS_TIMEOUT_NO_WAIT);
+    TEST_ASSERT_EQUAL(MB_RESULT_OKAY, result);
+
+    MSG_Header recvHeader;
+    uint32_t msg_size = sizeof(MSG_Header);
+    result = mb_receive(pipe, &recvHeader, &msg_size, OS_TIMEOUT_NO_WAIT);
+    TEST_ASSERT_EQUAL(MB_RESULT_OKAY, result);
+    TEST_ASSERT_EQUAL(msg_size, sizeof(MSG_Header));
+    TEST_ASSERT_EQUAL_MEMORY(&header, &recvHeader, sizeof(header));
+}
+
+TEST_GROUP_RUNNER(FSW_MB)
+{
+    RUN_TEST_CASE(FSW_MB, create_pipe_null);
+    RUN_TEST_CASE(FSW_MB, create_pipe);
+    RUN_TEST_CASE(FSW_MB, create_many_pipes);
+    RUN_TEST_CASE(FSW_MB, register_packet_command);
+    RUN_TEST_CASE(FSW_MB, register_packet_telemetry);
+    RUN_TEST_CASE(FSW_MB, register_packet_null);
+    RUN_TEST_CASE(FSW_MB, register_over_max);
+    RUN_TEST_CASE(FSW_MB, send_receive);
+}
+

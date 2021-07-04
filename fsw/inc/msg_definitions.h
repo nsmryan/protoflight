@@ -39,12 +39,14 @@ typedef enum
 } MSG_PACKETTYPE_ENUM;
 
 /**
- * This enum is the packet type of a message.
+ * This enum is the packet id of a message, indicating which message
+ * structure the packet contains.
  */
 typedef enum
 {
     MSG_PACKETID_HEALTHANDSTATUS = 1,
     MSG_PACKETID_EVENT           = 2,
+    MSG_PACKETID_COMMAND         = 3,
     MSG_PACKETID_NUM_PACKET_IDS,
 } MSG_PACKETID_ENUM;
 

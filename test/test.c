@@ -7,8 +7,7 @@
  * for protoflight. Building protoflight for unit tests
  * will execute each module's unit tests as Unity fixtures.
  */
-#if defined(FSW_UNIT_TEST)
-
+#include "unity.h"
 #include "unity_fixture.h"
 
 
@@ -20,6 +19,8 @@ static void Test_RunAllTests(void)
     RUN_TEST_GROUP(OS_TASK);
     RUN_TEST_GROUP(OS_MUTEX);
     RUN_TEST_GROUP(OS_SEM);
+
+    RUN_TEST_GROUP(FSW_MB);
 }
 
 int main(int argc, char const *argv[])
@@ -27,4 +28,3 @@ int main(int argc, char const *argv[])
     UnityMain(argc, argv, Test_RunAllTests);
 }
 
-#endif

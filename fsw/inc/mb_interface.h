@@ -77,8 +77,8 @@ MB_RESULT_ENUM mb_receive(MB_Pipe pipeId,
  *         source of the error.
  */
 MB_RESULT_ENUM mb_create_pipe(MB_Pipe *pipe,
-                              uint32_t msg_size_bytes,
-                              uint32_t num_msgs);
+                              uint32_t num_msgs,
+                              uint32_t msg_size_bytes);
 
 /**
  * @brief This function registers a message to receive on a pipe. Messages
@@ -86,12 +86,12 @@ MB_RESULT_ENUM mb_create_pipe(MB_Pipe *pipe,
  * message type.
  *
  * @param[in] pipe - the pipe to register a new message on
- * @param[in] packet_type - the packet type to listen to for the given pipe
+ * @param[in] packet_id - the packet id to listen to for the given pipe
  *
  * @return Either success (MB_RESULT_OKAY), or an error code indicating the
  *         source of the error.
  */
-MB_RESULT_ENUM mb_register_packet(MB_Pipe pipe, MSG_PACKETTYPE_ENUM packet_type);
+MB_RESULT_ENUM mb_register_packet(MB_Pipe pipe, MSG_PACKETID_ENUM packet_id);
 
 /**
  * @brief mb_get_status

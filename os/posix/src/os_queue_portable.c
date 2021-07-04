@@ -9,8 +9,6 @@
  * intended for high performance, but rather as a simple alternative queue
  * for systems that do not implement librt.
  */
-#if defined(OS_WSL)
-
 #include "stdint.h"
 #include "stdio.h"
 #include "stdbool.h"
@@ -404,5 +402,3 @@ OS_RESULT_ENUM os_queue_receive(OS_Queue *queue,
 
     return result;
 }
-
-#endif /* defined(OS_WSL) */

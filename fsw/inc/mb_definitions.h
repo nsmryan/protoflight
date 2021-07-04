@@ -53,6 +53,8 @@ typedef enum MB_RESULT_ENUM
     MB_RESULT_INVALID_ARGUMENTS  = 5, /*<< Invalid arguments provided to function */
     MB_RESULT_PIPE_READ_ERROR    = 6, /*<< Error reading from a pipe */
     MB_RESULT_INVALID_PIPE       = 7, /*<< Pipe was an invalid value */
+    MB_RESULT_TIMEOUT            = 8, /*<< Time on read or write */
+    MB_RESULT_SEND_ERROR         = 0, /*<< Message send error */
     MB_RESULT_NUM_RESULTS             /*<< Number of result values for MB */
 } MB_RESULT_ENUM;
 
@@ -63,8 +65,8 @@ typedef enum MB_RESULT_ENUM
  */
 typedef struct MB_PacketData
 {
-  uint32_t num_queues;
-  uint32_t queues[MB_MAX_PIPES_PER_PACKET];
+  uint32_t num_queues;                       /*<< The number of queues used in the 'queues' array */
+  uint32_t queues[MB_MAX_PIPES_PER_PACKET];  /*<< The array of queues associated with the packet that MB_PacketData tracks */
 } MB_PacketData;
 
 /**
@@ -72,8 +74,14 @@ typedef struct MB_PacketData
  */
 typedef struct MB_Status
 {
-	uint32_t messages_received;
-	uint32_t message_errors;
+	uint32_t messages_sent;            /*<< A count of the number of messages sent over MB */
+	uint32_t message_sent_errors;      /*<< A count of errors when sending messages */
+	uint32_t message_receive_errors;   /*<< A count of errors when receiving  messages */
+    uint32_t send_error_packet_id;     /*<< The packet ID that caused the last send error */
+    uint32_t send_error_pipe_index;    /*<<  The pipe index that caused the last send error */
+    int32_t  send_error_code;          /*<< The error code returned from the os_queue on the last send error */
+    uint32_t receive_error_pipe_id;    /*<< The pipe ID that caused the last receive error */
+    int32_t  receive_error_code;       /*<< The error code returned from the os_queue on the last receive error */
 } MB_Status;
 
 /**
@@ -81,10 +89,10 @@ typedef struct MB_Status
  */
 typedef struct MB_State
 {
-  uint32_t num_pipes;
-  OS_Queue pipes[MB_MAX_NUM_PIPES];
-  MB_PacketData packets[MSG_PACKETTYPE_NUM_TYPES];
-  MB_Status status;
+  uint32_t num_pipes;                               /*<< The number of allocated pipes in the 'pipes' array */
+  OS_Queue pipes[MB_MAX_NUM_PIPES];                 /*<< The queues allocated to receive packets */
+  MB_PacketData packets[MSG_PACKETTYPE_NUM_TYPES];  /*<< The packet structures tracking which queues are used to receive which packets */
+  MB_Status status;                                 /*<< The MB module status structure reported in health and status */
 } MB_State;
 
 #endif // ndef __MB_DEFINITIONS_H__ */
