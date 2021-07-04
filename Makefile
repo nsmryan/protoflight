@@ -50,7 +50,7 @@ endif
 
 
 FSW_SRC := em.c fsw.c mb.c msg.c tlm.c tm.c
-SRC := $(OS_SRC) $(FSW_SRC) main.c
+SRC := $(OS_SRC) $(FSW_SRC) protoflight.c
 
 TEST_SRC := $(OS_SRC) $(FSW_SRC) os_test.c mb_test.c unity.c unity_fixture.c test.c
 
