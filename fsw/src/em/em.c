@@ -11,11 +11,11 @@
 
 #include "fsw_definitions.h"
 
-#include "msg_interface.h"
-#include "mb_interface.h"
+#include "msg.h"
+#include "mb.h"
 
 #include "em_definitions.h"
-#include "em_interface.h"
+#include "em.h"
 
 
 EM_State gvEM_state = {0};

@@ -9,7 +9,7 @@
 #include "stdint.h"
 
 #include "msg_definitions.h"
-#include "msg_interface.h"
+#include "msg.h"
 
 
 MSG_RESULT_ENUM msg_telemetry_message(MSG_Header *header,

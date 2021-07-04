@@ -16,10 +16,10 @@
 
 #include "fsw_definitions.h"
 #include "mb_definitions.h"
-#include "mb_interface.h"
+#include "mb.h"
 
 #include "em_definitions.h"
-#include "em_interface.h"
+#include "em.h"
 
 
 #define FSW_EM_TEST_EVENT_ID 1

@@ -11,13 +11,13 @@
 
 #include "fsw_definitions.h"
 #include "fsw_tasks.h"
-#include "em_interface.h"
-#include "tm_interface.h"
-#include "msg_interface.h"
-#include "mb_interface.h"
+#include "em.h"
+#include "tm.h"
+#include "msg.h"
+#include "mb.h"
 
 #include "tlm_definitions.h"
-#include "tlm_interface.h"
+#include "tlm.h"
 
 
 TLM_State gvTLM_state;

@@ -16,7 +16,7 @@
 
 #include "fsw_definitions.h"
 #include "msg_definitions.h"
-#include "msg_interface.h"
+#include "msg.h"
 
 
 TEST_GROUP(FSW_MSG);

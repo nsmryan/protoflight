@@ -16,7 +16,7 @@
 #include "fsw_tasks.h"
 
 #include "tm_definitions.h"
-#include "tm_interface.h"
+#include "tm.h"
 
 
 TM_State gvTM_state = {0};

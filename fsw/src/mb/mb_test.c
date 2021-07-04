@@ -16,12 +16,12 @@
 
 #include "fsw_definitions.h"
 #include "msg_definitions.h"
-#include "em_interface.h"
+#include "em.h"
 #include "msg_definitions.h"
-#include "msg_interface.h"
+#include "msg.h"
 
 #include "mb_definitions.h"
-#include "mb_interface.h"
+#include "mb.h"
 
 
 // These unit tests send only headers over queues, so the message size is the
