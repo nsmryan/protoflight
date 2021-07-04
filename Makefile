@@ -49,7 +49,7 @@ OS_SRC += os_queue.c
 endif
 
 
-FSW_SRC := em.c fsw.c mb.c msg.c tbl.c tlm.c tm.c
+FSW_SRC := em.c fsw.c mb.c msg.c tlm.c tm.c
 SRC := $(OS_SRC) $(FSW_SRC) main.c
 
 TEST_SRC := $(OS_SRC) $(FSW_SRC) os_test.c mb_test.c unity.c unity_fixture.c test.c
@@ -57,7 +57,7 @@ TEST_SRC := $(OS_SRC) $(FSW_SRC) os_test.c mb_test.c unity.c unity_fixture.c tes
 OBJS := $(addprefix $(BUILD)/, $(addsuffix .o, $(basename $(notdir $(SRC)))))
 TEST_OBJS := $(addprefix $(BUILD)/, $(addsuffix .to, $(basename $(notdir $(TEST_SRC)))))
 
-VPATH := fsw/src/em fsw/src/fsw fsw/src/mb fsw/src/msg fsw/src/tbl fsw/src/tlm fsw/src/tm os/$(OS)/src os/$(OS) os test test/unity
+VPATH := fsw/src/em fsw/src/fsw fsw/src/mb fsw/src/msg fsw/src/tlm fsw/src/tm os/$(OS)/src os/$(OS) os test test/unity
 
 .PHONY: all protoflight test sloc run
 

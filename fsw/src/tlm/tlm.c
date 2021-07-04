@@ -15,7 +15,6 @@
 #include "tm_interface.h"
 #include "msg_interface.h"
 #include "mb_interface.h"
-#include "tbl_interface.h"
 
 #include "tlm_definitions.h"
 #include "tlm_interface.h"
@@ -67,7 +66,6 @@ void tlm_telemetry_task(void *argument)
         tlm_get_status(&telemetry.telemetry.tlm);
         mb_get_status(&telemetry.telemetry.mb);
         em_get_status(&telemetry.telemetry.em);
-        tbl_get_status(&telemetry.telemetry.tbl);
         tm_get_status(&telemetry.telemetry.tm);
 
         // return value not checked because the message cannot be null.

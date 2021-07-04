@@ -15,7 +15,6 @@
 #include "em_interface.h"
 #include "tlm_interface.h"
 #include "mb_interface.h"
-#include "tbl_interface.h"
 
 
 int main(int argc, char *argv[])
@@ -67,13 +66,6 @@ int main(int argc, char *argv[])
 	{
 		initialize_success = false;
 		module_flags |= (1ULL << FSW_MODULEID_MB);
-	}
-
-	fsw_result = tbl_initialize();
-	if (fsw_result != FSW_RESULT_OKAY)
-	{
-		initialize_success = false;
-		module_flags |= (1ULL << FSW_MODULEID_TBL);
 	}
 
 	TM_RESULT_ENUM tm_result = tm_start();

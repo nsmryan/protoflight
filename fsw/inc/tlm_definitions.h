@@ -10,7 +10,6 @@
 
 #include "stdint.h"
 
-#include "tbl_definitions.h"
 #include "tlm_definitions.h"
 #include "mb_definitions.h"
 #include "em_definitions.h"
@@ -63,7 +62,6 @@ typedef struct TLM_HealthAndStatus
   TLM_Status tlm;
   MB_Status  mb;
   EM_Status  em;
-  TBL_Status tbl;
   TM_Status  tm;
 } TLM_HealthAndStatus;
 

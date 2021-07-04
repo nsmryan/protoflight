@@ -56,7 +56,6 @@ typedef enum FSW_MODULEID_ENUM
 	FSW_MODULEID_MB      = 3, /*<< Message Bus */
 	FSW_MODULEID_TLM     = 4, /*<< Telemetry */
 	FSW_MODULEID_TM      = 5, /*<< Task Manager */
-	FSW_MODULEID_TBL     = 6, /*<< Table */
 	FSW_MODULEID_NUM_IDS      /*<< Number of modules */
 } FSW_MODULEID_ENUM;
 
