@@ -19,7 +19,6 @@
 #include "msg_interface.h"
 
 
-
 TEST_GROUP(FSW_MSG);
 
 TEST_SETUP(FSW_MSG)

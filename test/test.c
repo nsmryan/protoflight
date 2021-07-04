@@ -24,6 +24,7 @@ static void Test_RunAllTests(void)
     // FSW Test Groups
     RUN_TEST_GROUP(FSW_MB);
     RUN_TEST_GROUP(FSW_MSG);
+    RUN_TEST_GROUP(FSW_EM);
 }
 
 int main(int argc, char const *argv[])

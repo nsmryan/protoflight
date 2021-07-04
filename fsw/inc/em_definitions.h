@@ -55,6 +55,7 @@ typedef struct EM_Status
   uint32_t messages_received;
   uint32_t messages_sent;
   uint32_t message_errors;
+  uint32_t invalid_msg_received;
 } EM_Status;
 
 /**

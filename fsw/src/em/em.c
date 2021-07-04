@@ -39,11 +39,7 @@ void em_event(FSW_MODULEID_ENUM module_id,
               uint32_t param3,
               uint32_t param4)
 {
-    MB_RESULT_ENUM mb_result = MB_RESULT_OKAY;
-
-    gvEM_state.status.messages_received++;
-
-    if (module_id < FSW_MODULEID_NUM_IDS)
+    if ((module_id == FSW_MODULEID_INVALID) || (module_id >= FSW_MODULEID_NUM_IDS))
     {
         EM_Event event;
 
@@ -58,6 +54,7 @@ void em_event(FSW_MODULEID_ENUM module_id,
         event.params[3] = param3;
         event.params[4] = param4;
 
+        MB_RESULT_ENUM mb_result;
         mb_result = mb_send((MSG_Header*)&event, OS_TIMEOUT_NO_WAIT);
 
         if (mb_result == MB_RESULT_OKAY)
@@ -68,6 +65,10 @@ void em_event(FSW_MODULEID_ENUM module_id,
         {
             gvEM_state.status.message_errors++;
         }
+    }
+    else
+    {
+        gvEM_state.status.invalid_msg_received++;
     }
 }
 
