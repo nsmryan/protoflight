@@ -184,10 +184,10 @@ TEST(FSW_MB, send_receive)
     TEST_ASSERT_EQUAL(MB_RESULT_OKAY, result);
 
     MSG_Header recvHeader;
-    uint32_t msg_size = sizeof(MSG_Header);
+    uint32_t msg_size = 0;
     result = mb_receive(pipe, &recvHeader, &msg_size, OS_TIMEOUT_NO_WAIT);
     TEST_ASSERT_EQUAL(MB_RESULT_OKAY, result);
-    TEST_ASSERT_EQUAL(msg_size, sizeof(MSG_Header));
+    TEST_ASSERT_EQUAL(msg_size, 0);
     TEST_ASSERT_EQUAL_MEMORY(&header, &recvHeader, sizeof(header));
 }
 

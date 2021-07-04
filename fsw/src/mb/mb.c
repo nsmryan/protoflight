@@ -130,7 +130,7 @@ MB_RESULT_ENUM mb_receive(MB_Pipe pipe_id,
         OS_RESULT_ENUM os_result =
             os_queue_receive(&gvMB_state.pipes[pipe_id],
                              (uint8_t*)message,
-                             msg_size,
+                             sizeof(MSG_Header) + msg_size,
                              timeout);
 
         if (os_result == OS_RESULT_OKAY)
@@ -185,7 +185,7 @@ MB_RESULT_ENUM mb_create_pipe(MB_Pipe *pipe,
         OS_RESULT_ENUM os_result =
             os_queue_create(&gvMB_state.pipes[next_pipe],
                             num_msgs,
-                            msg_size_bytes);
+                            sizeof(MSG_Header) + msg_size_bytes);
         if (os_result != OS_RESULT_OKAY)
         {
             result = MB_RESULT_PIPE_CREATE_FAILED;
