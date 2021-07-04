@@ -3,7 +3,7 @@
  *
  * @author Noah Ryan
  *
- * This file contains the implementation for the Event Message module.
+ * This file contains the implementation of Event Message module functions.
  */
 #include "stddef.h"
 #include "stdint.h"

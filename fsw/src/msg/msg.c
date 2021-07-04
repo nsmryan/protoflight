@@ -3,7 +3,7 @@
  *
  * @author Noah Ryan
  *
- * This file contains the implementation for Message module functions.
+ * This file contains the implementation of Message module functions.
  */
 #include "stddef.h"
 #include "stdint.h"

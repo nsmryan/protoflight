@@ -5,7 +5,7 @@
  *
  * @author Noah Ryan
  *
- * This file contains the implementation of the Message Bus module functions.
+ * This file contains the implementation of Message Bus module functions.
  */
 #include "stddef.h"
 #include "stdlib.h"

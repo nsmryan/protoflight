@@ -60,7 +60,7 @@ void tlm_telemetry_task(void *argument)
 {
     (void)argument;
 
-    TLM_TelemetryMessage telemetry = {0};
+    TLM_HealthAndStatusMessage telemetry = {0};
 
     while (tm_running(FSW_TASK_ID_TELEMETRY))
     {
@@ -71,9 +71,9 @@ void tlm_telemetry_task(void *argument)
         tm_get_status(&telemetry.telemetry.tm);
 
         // return value not checked because the message cannot be null.
-        msg_telemetry_message((MSG_Header*)&telemetry,
-                               MSG_PACKETTYPE_TELEMETRY,
-                               sizeof(TLM_TelemetryMessage));
+        (void)msg_telemetry_message((MSG_Header*)&telemetry,
+                                    MSG_PACKETTYPE_TELEMETRY,
+                                    sizeof(TLM_HealthAndStatusMessage));
 
         MB_RESULT_ENUM mb_result = mb_send(&telemetry.header, OS_TIMEOUT_NO_WAIT);
 
@@ -93,7 +93,7 @@ void tlm_telemetry_task(void *argument)
         // zero out the telemetry structure so it is ready for the next
         // set of telemetry definitions.
         // the return of memset is the source pointer, which cannot be NULL.
-        memset(&telemetry.telemetry, 0, sizeof(telemetry.telemetry));
+        (void)memset(&telemetry.telemetry, 0, sizeof(telemetry.telemetry));
     }
 }
 

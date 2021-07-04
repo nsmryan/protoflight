@@ -3,7 +3,7 @@
  *
  * @author Noah Ryan
  *
- * This file contains the function implementations for the Task Manager module.
+ * This file contains the implementation of Task Manager module functions.
  */
 #include "stddef.h"
 #include "stdbool.h"

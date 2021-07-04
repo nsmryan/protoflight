@@ -58,23 +58,23 @@ typedef struct TLM_State
  * This struct contains the status structure of all modules in the flight
  * software.
  */
-typedef struct TLM_Telemetry
+typedef struct TLM_HealthAndStatus
 {
   TLM_Status tlm;
   MB_Status  mb;
   EM_Status  em;
   TBL_Status tbl;
   TM_Status  tm;
-} TLM_Telemetry;
+} TLM_HealthAndStatus;
 
 /**
  * This struct is the telemetry packet containing status of all
  * modules in the flight software.
  */
-typedef struct TLM_TelemetryMessage
+typedef struct TLM_HealthAndStatusMessage
 {
   MSG_Header header;
-  TLM_Telemetry telemetry;
-} TLM_TelemetryMessage;
+  TLM_HealthAndStatus telemetry;
+} TLM_HealthAndStatusMessage;
 
 #endif // ndef __TLM_DEFINITIONS_H__ */

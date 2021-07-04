@@ -3,7 +3,7 @@
  *
  * @author Noah Ryan
  *
- * This file contains implementations of function for the Table module.
+ * This file contains the implementation of Table module functions.
  */
 #include "stddef.h"
 
