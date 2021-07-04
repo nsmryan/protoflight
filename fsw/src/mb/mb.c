@@ -65,9 +65,9 @@ MB_RESULT_ENUM mb_send(MSG_Header *message, OS_Timeout timeout)
              pipe_index < gvMB_state.packets[packet_id].num_queues;
              pipe_index++)
         {
-            uint32_t pipe_index = gvMB_state.packets[packet_id].queues[pipe_index];
+            uint32_t pipe = gvMB_state.packets[packet_id].queues[pipe_index];
             OS_RESULT_ENUM os_result =
-                os_queue_send(&gvMB_state.pipes[pipe_index],
+                os_queue_send(&gvMB_state.pipes[pipe],
                               (uint8_t*)message,
                               msg_size,
                               timeout);
@@ -203,6 +203,11 @@ MB_RESULT_ENUM mb_register_packet(MB_Pipe pipe, MSG_PACKETID_ENUM packet_id)
     if (pipe > gvMB_state.num_pipes)
     {
         result = MB_RESULT_INVALID_PIPE;
+    }
+
+    if (packet_id > MSG_PACKETID_NUM_PACKET_IDS)
+    {
+        result = MB_RESULT_INVALID_PACKET_ID;
     }
 
     if (result == MB_RESULT_OKAY)

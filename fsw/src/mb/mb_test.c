@@ -156,6 +156,48 @@ TEST(FSW_MB, send_receive)
     TEST_ASSERT_EQUAL_MEMORY(&header, &recvHeader, sizeof(header));
 }
 
+TEST(FSW_MB, send_receive_two_pipes)
+{
+    MB_RESULT_ENUM result;
+
+    MB_Pipe pipe1;
+    result = mb_create_pipe(&pipe1, FSW_MB_TEST_NUM_MSGS, FSW_MB_TEST_MSG_SIZE);
+    TEST_ASSERT_EQUAL(MB_RESULT_OKAY, result);
+
+    MB_Pipe pipe2;
+    result = mb_create_pipe(&pipe2, FSW_MB_TEST_NUM_MSGS, FSW_MB_TEST_MSG_SIZE);
+    TEST_ASSERT_EQUAL(MB_RESULT_OKAY, result);
+
+    TEST_ASSERT_NOT_EQUAL(pipe1, pipe2);
+    
+    result = mb_register_packet(pipe1, MSG_PACKETID_COMMAND);
+    TEST_ASSERT_EQUAL(MB_RESULT_OKAY, result);
+
+    result = mb_register_packet(pipe2, MSG_PACKETID_COMMAND);
+    TEST_ASSERT_EQUAL(MB_RESULT_OKAY, result);
+
+    MSG_Header header;
+    MSG_RESULT_ENUM msgResult;
+    msgResult = msg_command_message(&header, MSG_PACKETID_COMMAND, 0);
+    TEST_ASSERT_EQUAL(MSG_RESULT_OKAY, msgResult);
+
+    result = mb_send(&header, OS_TIMEOUT_NO_WAIT);
+    TEST_ASSERT_EQUAL(MB_RESULT_OKAY, result);
+
+    MSG_Header recvHeader1;
+    uint32_t msg_size = sizeof(MSG_Header);
+    result = mb_receive(pipe1, &recvHeader1, &msg_size, OS_TIMEOUT_NO_WAIT);
+    TEST_ASSERT_EQUAL(MB_RESULT_OKAY, result);
+    TEST_ASSERT_EQUAL(msg_size, sizeof(MSG_Header));
+    TEST_ASSERT_EQUAL_MEMORY(&header, &recvHeader1, sizeof(header));
+
+    MSG_Header recvHeader2;
+    result = mb_receive(pipe2, &recvHeader2, &msg_size, OS_TIMEOUT_NO_WAIT);
+    TEST_ASSERT_EQUAL(MB_RESULT_OKAY, result);
+    TEST_ASSERT_EQUAL(msg_size, sizeof(MSG_Header));
+    TEST_ASSERT_EQUAL_MEMORY(&header, &recvHeader2, sizeof(header));
+}
+
 TEST_GROUP_RUNNER(FSW_MB)
 {
     RUN_TEST_CASE(FSW_MB, create_pipe_null);
@@ -166,5 +208,6 @@ TEST_GROUP_RUNNER(FSW_MB)
     RUN_TEST_CASE(FSW_MB, register_packet_null);
     RUN_TEST_CASE(FSW_MB, register_over_max);
     RUN_TEST_CASE(FSW_MB, send_receive);
+    RUN_TEST_CASE(FSW_MB, send_receive_two_pipes);
 }
 
