@@ -31,21 +31,23 @@ ifeq ($(OS), tinycthread)
 	CFLAGS+=lib/tinycthread/tinycthread.c -Ilib/tinycthread/
 endif
 
-OS_WSL ?= 0
-ifeq ($(OS_WSL), 1)
-	CFLAGS+=-DOS_WSL=1
-endif
-
 LDLIBS += -lrt
 
 # OS source files
 OS_SRC := os_mutex.c os_sem.c os_task.c os_time.c os_timer.c
 
-# if using WSL, use the portable queue as librt is not supported
-ifeq ($(OS_WSL), 1)
-OS_SRC += os_queue_portable.c
+# WSL detection:
+# This relies on the fact that ?= will define the variable if is does not
+# exist, and ifndef will trigger if the variable doesn't exist *or* it
+# has an empty value. WSL will define this empty, triggering this path.
+WSLENV ?= 0
+ifndef WSLENV
+	# if using WSL, use the portable queue as librt is not supported.
+	OS_SRC += os_queue_portable.c
+	# Also add the OS_WSL flag to build.
+	CFLAGS+=-DOS_WSL=1
 else
-OS_SRC += os_queue.c
+	OS_SRC += os_queue.c
 endif
 
 
