@@ -55,7 +55,7 @@ TEST(FSW_EM, invalid_module)
              FSW_EM_TEST_LINE_ID,
              1, 2, 3, 4, 5);
     TEST_ASSERT_EQUAL(0, gvEM_state.status.messages_received);
-    TEST_ASSERT_EQUAL(1, gvEM_state.status.invalid_msg_received);
+    TEST_ASSERT_EQUAL(2, gvEM_state.status.invalid_msg_received);
 }
 
 TEST(FSW_EM, msg_error)

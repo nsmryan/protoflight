@@ -56,7 +56,8 @@ typedef enum
     MB_RESULT_TIMEOUT            = 8,  /*<< Time on read or write */
     MB_RESULT_SEND_ERROR         = 9,  /*<< Message send error */
     MB_RESULT_INVALID_PACKET_ID  = 10, /*<< Invalid packet id given */
-    MB_RESULT_NUM_RESULTS             /*<< Number of result values for MB */
+    MB_RESULT_NO_RECEIVER        = 11, /*<< No receiver available to receive a message */
+    MB_RESULT_NUM_RESULTS              /*<< Number of result values for MB */
 } MB_RESULT_ENUM;
 
 /**
@@ -76,6 +77,7 @@ typedef struct
 typedef struct
 {
 	uint32_t messages_sent;            /*<< A count of the number of messages sent over MB */
+    uint32_t messages_received;        /*<< A count of the number of messages received over MB */
 	uint32_t message_sent_errors;      /*<< A count of errors when sending messages */
 	uint32_t message_receive_errors;   /*<< A count of errors when receiving  messages */
     uint32_t send_error_packet_id;     /*<< The packet ID that caused the last send error */

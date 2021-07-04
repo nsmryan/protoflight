@@ -61,6 +61,7 @@ MB_RESULT_ENUM mb_send(MSG_Header *message, OS_Timeout timeout)
         MSG_PACKETID_ENUM packet_id =
             (MSG_PACKETID_ENUM)message->packet_id;
 
+        result = MB_RESULT_NO_RECEIVER;
         for (uint16_t pipe_index = 0;
              pipe_index < gvMB_state.packets[packet_id].num_queues;
              pipe_index++)
@@ -72,7 +73,11 @@ MB_RESULT_ENUM mb_send(MSG_Header *message, OS_Timeout timeout)
                               msg_size,
                               timeout);
 
-            if (os_result != OS_RESULT_OKAY)
+            if (os_result == OS_RESULT_OKAY)
+            {
+                result = MB_RESULT_OKAY;
+            }
+            else
             {
                 // Timeouts are handled separately, as they are an expected error
                 // condition in some case.
@@ -128,7 +133,11 @@ MB_RESULT_ENUM mb_receive(MB_Pipe pipe_id,
                              msg_size,
                              timeout);
 
-        if (os_result != OS_RESULT_OKAY)
+        if (os_result == OS_RESULT_OKAY)
+        {
+            gvMB_state.status.messages_received++;
+        }
+        else
         {
             // Timeouts are handled separately, as they are an expected error
             // condition in some case.

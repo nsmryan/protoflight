@@ -39,7 +39,7 @@ void em_event(FSW_MODULEID_ENUM module_id,
               uint32_t param3,
               uint32_t param4)
 {
-    if ((module_id == FSW_MODULEID_INVALID) || (module_id >= FSW_MODULEID_NUM_IDS))
+    if ((module_id != FSW_MODULEID_INVALID) && (module_id < FSW_MODULEID_NUM_IDS))
     {
         EM_Event event;
 
