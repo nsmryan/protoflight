@@ -13,6 +13,7 @@
 
 static void Test_RunAllTests(void)
 {
+    // OS Test Groups
     RUN_TEST_GROUP(OS_QUEUE);
     RUN_TEST_GROUP(OS_TIME);
     RUN_TEST_GROUP(OS_TIMER);
@@ -20,7 +21,9 @@ static void Test_RunAllTests(void)
     RUN_TEST_GROUP(OS_MUTEX);
     RUN_TEST_GROUP(OS_SEM);
 
+    // FSW Test Groups
     RUN_TEST_GROUP(FSW_MB);
+    RUN_TEST_GROUP(FSW_MSG);
 }
 
 int main(int argc, char const *argv[])

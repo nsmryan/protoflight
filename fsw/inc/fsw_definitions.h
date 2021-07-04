@@ -48,7 +48,7 @@
  * The module id enum enumerates all modules within the FSW system.
  * When adding a new module, it should be given a module id in this enum.
  */
-typedef enum FSW_MODULEID_ENUM
+typedef enum
 {
 	FSW_MODULEID_INVALID = 0, /*<< Invalid module id */
 	FSW_MODULEID_INIT    = 1, /*<< Initialization */
@@ -63,7 +63,7 @@ typedef enum FSW_MODULEID_ENUM
  * The FSW_RESULT_ENUM is used to indicate successful function execution,
  * or provides an error indicator otherwise.
  */
-typedef enum FSW_RESULT_ENUM
+typedef enum
 {
 	FSW_RESULT_INVALID                 = 0, /*<< Invalid result value */
 	FSW_RESULT_OKAY                    = 1, /*<< Success */

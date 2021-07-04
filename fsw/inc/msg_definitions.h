@@ -20,9 +20,10 @@
  */
 typedef enum
 {
-	MSG_RESULT_INVALID      = 0,
-	MSG_RESULT_OKAY         = 1,
-	MSG_RESULT_NULL_POINTER = 2,
+	MSG_RESULT_INVALID             = 0, /*<< Invalid result value */
+	MSG_RESULT_OKAY                = 1, /*<< Success */
+	MSG_RESULT_NULL_POINTER        = 2, /*<< NULL pointer provided as an argument */
+	MSG_RESULT_INVALID_PACKET_ID   = 3, /*<< Invalid packet ID provided */
 	MSG_RESULT_NUM_RESULTS
 } MSG_RESULT_ENUM;
 
@@ -32,10 +33,10 @@ typedef enum
  */
 typedef enum
 {
-  MSG_PACKETTYPE_INVALID   = 0,
-  MSG_PACKETTYPE_COMMAND   = 1,
-  MSG_PACKETTYPE_TELEMETRY = 2,
-  MSG_PACKETTYPE_NUM_TYPES
+  MSG_PACKETTYPE_INVALID   = 0, /*<< Invalid packet type */
+  MSG_PACKETTYPE_COMMAND   = 1, /*<< Packet type command */
+  MSG_PACKETTYPE_TELEMETRY = 2, /*<< Packet type telemetry */
+  MSG_PACKETTYPE_NUM_TYPES      /*<< Number of packet types */
 } MSG_PACKETTYPE_ENUM;
 
 /**
@@ -44,10 +45,11 @@ typedef enum
  */
 typedef enum
 {
-    MSG_PACKETID_HEALTHANDSTATUS = 1,
-    MSG_PACKETID_EVENT           = 2,
-    MSG_PACKETID_COMMAND         = 3,
-    MSG_PACKETID_NUM_PACKET_IDS,
+    MSG_PACKETID_INVALID         = 0, /*<< Invalid packet ID */
+    MSG_PACKETID_HEALTHANDSTATUS = 1, /*<< Health and Status packet ID */
+    MSG_PACKETID_EVENT           = 2, /*<< Event packet ID */
+    MSG_PACKETID_COMMAND         = 3, /*<< Command packet ID */
+    MSG_PACKETID_NUM_PACKET_IDS,      /*<< Number of packet IDs */
 } MSG_PACKETID_ENUM;
 
 /**
@@ -56,9 +58,9 @@ typedef enum
  */
 typedef struct
 {
-    uint8_t packet_type;
-    uint8_t packet_id;
-    uint16_t length;
+    uint8_t packet_type; /*<< Packet Type (see MSG_PACKETTYPE_ENUM) */
+    uint8_t packet_id;   /*<< Packet Id (see MSG_PACKETID_ENUM) */
+    uint16_t length;     /*<< Length of data after the message header */
 } MSG_Header;
 
 #endif // ndef __MSG_DEFINITIONS_H__ */

@@ -22,7 +22,16 @@ MSG_RESULT_ENUM msg_telemetry_message(MSG_Header *header,
     {
         result = MSG_RESULT_NULL_POINTER;
     }
-    else
+
+    if (result == MSG_RESULT_OKAY)
+    {
+        if ((packet_id == MSG_PACKETID_INVALID) || (packet_id >= MSG_PACKETID_NUM_PACKET_IDS))
+        {
+            result = MSG_RESULT_INVALID_PACKET_ID;
+        }
+    }
+
+    if (result == MSG_RESULT_OKAY)
     {
         header->packet_type = MSG_PACKETTYPE_TELEMETRY;
         header->packet_id = packet_id;
@@ -42,7 +51,16 @@ MSG_RESULT_ENUM msg_command_message(MSG_Header *header,
     {
         result = MSG_RESULT_NULL_POINTER;
     }
-    else
+
+    if (result == MSG_RESULT_OKAY)
+    {
+        if ((packet_id == MSG_PACKETID_INVALID) || (packet_id >= MSG_PACKETID_NUM_PACKET_IDS))
+        {
+            result = MSG_RESULT_INVALID_PACKET_ID;
+        }
+    }
+
+    if (result == MSG_RESULT_OKAY)
     {
         header->packet_type = MSG_PACKETTYPE_COMMAND;
         header->packet_id = packet_id;

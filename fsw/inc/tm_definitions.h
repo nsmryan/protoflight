@@ -71,7 +71,7 @@ typedef int TM_TaskBitField;
 /**
  * This enum provides the results for Task Manager module functions.
  */
-typedef enum TM_RESULT_ENUM
+typedef enum
 {
 	TM_RESULT_INVALID           = 0, /**< Invalid result */
 	TM_RESULT_OKAY              = 1, /**< Successful result */
@@ -87,7 +87,7 @@ typedef enum TM_RESULT_ENUM
  * This enum provides the possible task types supported by the Task Manager
  * module.
  */
-typedef enum TM_TASKTYPE_ENUM
+typedef enum
 {
 	TM_TASKTYPE_INVALID  = 0, /*<< Invalid task type */
 	TM_TASKTYPE_PERIODIC = 1, /*<< Periodic task, scheduled at a fixed rate */
@@ -99,7 +99,7 @@ typedef enum TM_TASKTYPE_ENUM
 /**
  * This enum provides task status for a task in a particular schedule slot.
  */
-typedef enum TM_TASKSTATUS_ENUM
+typedef enum
 {
 	TM_TASKSTATUS_INVALID          = 0,
 	TM_TASKSTATUS_WAIT             = 1,
@@ -112,7 +112,7 @@ typedef enum TM_TASKSTATUS_ENUM
  * This struct contains the information that Task Manager keeps on each
  * task, including its type and status.
  */
-typedef struct TM_Task
+typedef struct
 {
 	TM_TASKTYPE_ENUM type;
 	uint32_t schedule_period;
@@ -130,7 +130,7 @@ typedef struct TM_Task
 /**
  * This struct provides the status of the Task Manager module.
  */
-typedef struct TM_Status
+typedef struct
 {
 	uint32_t cycle;
 	TM_TaskBitField tasks_scheduled;
@@ -140,7 +140,7 @@ typedef struct TM_Status
 /**
  * This struct is the state of the Task Manager module.
  */
-typedef struct TM_State
+typedef struct
 {
 	TM_Status status;
 
