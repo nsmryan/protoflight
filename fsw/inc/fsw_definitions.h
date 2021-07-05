@@ -35,6 +35,15 @@
 #define FSW_EVENT_INIT_ERROR (FSW_EVENT_BASE_ID + 2)
 
 /**
+ * This event indicates a successful initialization of the fsw.
+ * The first two arguments are a bitflag indicating which
+ * modules reported a failure in initialization, and
+ * the third argument is a flag indicating whether the
+ * Task Manager module was able to initialize all tasks.
+ */
+#define FSW_EVENT_INIT_SUCCESS (FSW_EVENT_BASE_ID + 3)
+
+/**
  * Task ID for the telemetry module task
  */
 #define FSW_TASK_ID_TELEMETRY 10
