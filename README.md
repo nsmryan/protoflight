@@ -13,6 +13,13 @@ I want to get this running on some board, perhaps an STM32F4Discovery, and devel
 system as I can while keeping the general architecture of the flight software systems I have worked with.
 
 
+Development on this project is likely to be very slow. I am building this from the ground up, starting with
+an OS abstraction layer and moving to core modules, followed by extended functionality, while trying to
+be careful about testing code before using it. This means that there is a good bit of work to do before the
+system even runs, and system level testing to do after that. However, the small size speeds this up
+significantly, so it doesn't appear to be unapproachable so far.
+
+
 ## Motivation
 
 The underlying goal here is to explore flight software architecture while
