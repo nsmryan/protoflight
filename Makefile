@@ -61,7 +61,7 @@ TEST_OBJS := $(addprefix $(BUILD)/, $(addsuffix .to, $(basename $(notdir $(TEST_
 
 VPATH := fsw/src/em fsw/src/fsw fsw/src/mb fsw/src/msg fsw/src/tlm fsw/src/tm os/$(OS)/src os/$(OS) os test test/unity
 
-.PHONY: all protoflight test sloc run
+.PHONY: all protoflight test sloc run tags
 
 all: $(BUILD)/protoflight $(BUILD)/unit_test
 
@@ -71,7 +71,10 @@ test: $(BUILD)/unit_test
 	$(BUILD)/unit_test
 
 sloc: $(SRC)
-	cloc $^
+	cloc $^ --by-file
+
+tags:
+	@ctags -R --fields=+iaS --extra=+q
 
 run: protoflight
 	@$(BUILD)/protoflight
