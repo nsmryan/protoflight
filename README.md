@@ -1,4 +1,5 @@
 # Protoflight
+
 ## Introduction
 
 WARNING- this software is a prototype of a prototype. It is not intended for use, nor is it even fully running yet.
@@ -43,6 +44,8 @@ size).
 
 ## Goals
 
+
+```
   * Small size - this software should not accumulate features, and should remain in the few thousands of lines range. Size
     by itself is not the only goal, as some features are worth extra code, but should be taken into account.
   * Portability - this software should not rely on its operating system or board directly. Project-specific modules
@@ -56,6 +59,7 @@ size).
     and implementing a new module.
   * Best Practice - this software should show good practices. It does not have to be perfect, but in general it should track
   metrics, cover error cases, report information to the user, use good architecture, etc, to the extent that I am able to accomplish.
+```
 
 ## The Name Protoflight
 
@@ -69,29 +73,41 @@ that using this software increases your risk as it is not really intended for pr
 ## TODO
 
 Modules:
+```
     * tbl does not yet load any tables.
     * there is no fault monitoring.
     * tm does not do task monitoring- this should be part of tm\_running and incorporate some kind of watchdog.
     * command scheduling
     * relative time sequences
     * absolute time sequences
+```
 
 Testing:
+```
     * test coverage is not yet collected.
     * tm modules does not yet have unit tests.
+```
 
 Abstraction:
+```
     * the tinypthreads build should be tested or removed.
     * there should be at least one more os layer, ideally FreeRTOS.
+```
 
 Static Analysis:
+```
     * some level of static analysis should be run- cppcheck and/or cobra for example.
     * the compiler flags could be much stricter.
+```
 
 Ground System:
+```
     * ideally there would be a ground system to work with, likely Ball COSMOS.
+```
 
 Best Practice:
+```
     * add documentation generation with pandoc and markdown files as an example.
     * run with valgrind for memory and threading.
+```
 
